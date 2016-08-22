@@ -148,6 +148,9 @@ bot.on('message', function (msg) {
     var chatId = msg.chat.id;
 
     if (msg.sticker && ramdb[chatId] && !ramdb[chatId].islocked) {
+        if (ramdb[chatId].files.length < config.maximages) {
+            return bot.sendMessage(chatId, messages.msg.taskfull);
+        }
         ramdb[chatId].files.push(msg.sticker.file_id);
         bot.sendMessage(chatId, messages.msg.saved.replace('%remain%', config.maximages - ramdb[chatId].files.length));
     } else if (ramdb[chatId] && ramdb[chatId].islocked) {
