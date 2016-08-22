@@ -84,7 +84,7 @@ bot.onText(/\/finish\s?(png)?\s?(\d+)?/i, function (msg, match) {
                     console.log('[' + chatId + '] Convert command:', im.convert.path, imarg.join(' '));
                     im.convert(imarg, function (err, stdout) {
                         ramdb[chatId].destimg.push(destimg);
-                        callback(err);
+                        callback();
                     });
                 }, function (err) {
                     if (err) {
@@ -146,7 +146,7 @@ bot.on('message', function (msg) {
 });
 
 function cleanup(id) {
-    console.log('[' + id + '] Clearing up...');
+    console.log('[' + id + '] Cleaning up...');
     ramdb[id] = undefined;
     fs.removeSync(path.resolve(config.file_storage + '/' + id));
 }
