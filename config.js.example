@@ -1,0 +1,16 @@
+module.exports = {
+    // telegram bot token, get one from @BotFather
+    token: '1234567890:YOURTOKENHERE',
+
+    // imagemagick convert path, defaults to 'convert'
+    im_convert_path: 'convert',
+
+    // max images allowed in one pack
+    maximages: 50,
+    // file storage path
+    file_storage: './storage',
+
+    // use language
+    lang: 'en'
+};
+
