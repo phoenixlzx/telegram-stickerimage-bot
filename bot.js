@@ -29,6 +29,9 @@ fs.stat(fspath, function(err, stats) {
 
 bot.onText(/\/newpack*/i, function (msg) {
     var chatId = msg.chat.id;
+    if (ramdb[chatId] && ramdb[chatId].files.length > 0) {
+        return bot.sendMessage(chatId, messages.msg.taskexist);
+    }
     ramdb[chatId] = {
         start: msg.date,
         files: [],

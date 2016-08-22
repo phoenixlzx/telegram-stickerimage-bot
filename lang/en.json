@@ -8,6 +8,7 @@
     "packaging": "[3/4] Zipping all files...",
     "sending": "[4/4] Sending the .zip file, may take some time. Check back later!",
     "nosticker": "Sorry, but you don't have stickers in queue, maybe the bot restarted, or you just not sent any. Try using /newpack to start.",
+    "taskexist": "You currently have a packaging task, please complete it first using /finish command. Send any text to see help message.",
     "error": "Ouch! An error just occurred."
   },
   "app": {
