@@ -103,6 +103,7 @@ bot.onText(/\/finish\s?(png)?\s?(\d+)?/i, function (msg, match) {
                 bot.sendDocument(chatId, res[2]);
                 console.log('[' + chatId + '] Sending zip file...');
                 // clear task
+                console.log('[' + chatId + '] Clearing up...');
                 fs.removeSync(path.resolve(packpath));
                 ramdb[chatId] = undefined;
                 console.log('[' + chatId + '] Task finished.');
