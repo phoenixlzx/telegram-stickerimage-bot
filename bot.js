@@ -84,10 +84,11 @@ bot.onText(/\/finish\s?(png)?\s?(\d+)?/i, function (msg, match) {
                     console.log('[' + chatId + '] Convert command:', im.convert.path, imarg.join(' '));
                     im.convert(imarg, function (err, stdout) {
                         ramdb[chatId].destimg.push(destimg);
-                        callback();
+                        callback(err);
                     });
                 }, function (err) {
                     if (err) {
+                        bot.sendMessage(chatId, messages.msg.error);
                         return cleanup(chatId);
                     }
                     cb();
