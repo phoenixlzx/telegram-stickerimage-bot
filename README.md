@@ -15,7 +15,7 @@ Bot to export telegram stickers to images.
 1. git clone
 2. Get a bot token from [@BotFather](https://telegram.me/BotFather)
 3. Copy `config.js.example` to `config.js` and edit as your needs
-4. `npm start`
+4. `npm install && npm start`
 
 ### License
 
