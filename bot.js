@@ -29,6 +29,9 @@ fs.stat(fspath, function(err, stats) {
 
 bot.onText(/\/newpack*/i, function (msg) {
     var chatId = msg.chat.id;
+    if (ramdb[chatId] && ramdb[chatId].islocked) {
+        return bot.sendMessage(chatId, messages.msg.tasklocked);
+    }
     if (ramdb[chatId] && ramdb[chatId].files.length > 0) {
         return bot.sendMessage(chatId, messages.msg.taskexist);
     }
@@ -44,6 +47,9 @@ bot.onText(/\/newpack*/i, function (msg) {
 
 bot.onText(/\/finish\s?(png)?\s?(\d+)?/i, function (msg, match) {
     var chatId = msg.chat.id;
+    if (ramdb[chatId] && ramdb[chatId].islocked) {
+        return bot.sendMessage(chatId, messages.msg.tasklocked);
+    }
     var format = match[1];
     var width = match[2];
     if (ramdb[chatId] && ramdb[chatId].files.length > 0) {
@@ -145,7 +151,7 @@ bot.on('message', function (msg) {
         ramdb[chatId].files.push(msg.sticker.file_id);
         bot.sendMessage(chatId, messages.msg.saved.replace('%remain%', config.maximages - ramdb[chatId].files.length));
     } else if (ramdb[chatId] && ramdb[chatId].islocked) {
-        return bot.sendMessage(chatId, messages.msg.taskexist);
+        return bot.sendMessage(chatId, messages.msg.tasklocked);
     } else {
         if (!/(\/(finish|newpack))/i.exec(msg.text)) {
             bot.sendMessage(chatId, messages.msg.start);
