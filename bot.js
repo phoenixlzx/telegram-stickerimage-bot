@@ -153,10 +153,11 @@ bot.on('message', function (msg) {
         }
         ramdb[chatId].files.push(msg.sticker.file_id);
         bot.sendMessage(chatId, messages.msg.saved.replace('%remain%', config.maximages - ramdb[chatId].files.length));
-    } else if (ramdb[chatId] && ramdb[chatId].islocked) {
-        return bot.sendMessage(chatId, messages.msg.tasklocked);
     } else {
         if (!/(\/(finish|newpack))/i.exec(msg.text)) {
+            if (ramdb[chatId] && ramdb[chatId].islocked) {
+                return bot.sendMessage(chatId, messages.msg.tasklocked);
+            }
             bot.sendMessage(chatId, messages.msg.start);
         }
     }
