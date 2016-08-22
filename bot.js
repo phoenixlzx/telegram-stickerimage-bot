@@ -93,7 +93,7 @@ bot.onText(/\/finish\s?(png)?\s?(\d+)?/i, function (msg, match) {
             function (cb) {
                 bot.sendMessage(chatId, messages.msg.packaging);
                 console.log('[' + chatId + '] Packaging files...');
-                var zip = new AdmZip('pack.zip');
+                var zip = new AdmZip();
                 zip.addLocalFolder(path.resolve(packpath));
                 var packdata = zip.toBuffer();
                 cb(null, packdata);
