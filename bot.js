@@ -36,7 +36,8 @@ bot.onText(/\/newpack*/i, function (msg) {
         start: msg.date,
         files: [],
         srcimg: [],
-        destimg: []
+        destimg: [],
+        islocked: false
     };
     bot.sendMessage(chatId, messages.msg.newpack.replace('%max%', config.maximages));
 });
@@ -47,6 +48,7 @@ bot.onText(/\/finish\s?(png)?\s?(\d+)?/i, function (msg, match) {
     var width = match[2];
     if (ramdb[chatId] && ramdb[chatId].files.length > 0) {
         console.log('[' + chatId + '] Starting pack task...');
+        ramdb[chatId].islocked = true;
         var packpath = config.file_storage + '/' + chatId,
             srcpath = packpath + '/src/',
             imgpath = packpath + '/img/';
@@ -139,9 +141,11 @@ bot.onText(/\/finish\s?(png)?\s?(\d+)?/i, function (msg, match) {
 bot.on('message', function (msg) {
     var chatId = msg.chat.id;
 
-    if (msg.sticker && ramdb[chatId]) {
+    if (msg.sticker && ramdb[chatId] && !ramdb[chatId].islocked) {
         ramdb[chatId].files.push(msg.sticker.file_id);
         bot.sendMessage(chatId, messages.msg.saved.replace('%remain%', config.maximages - ramdb[chatId].files.length));
+    } else if (ramdb[chatId] && ramdb[chatId].islocked) {
+        
     } else {
         if (!/(\/(finish|newpack))/i.exec(msg.text)) {
             bot.sendMessage(chatId, messages.msg.start);
