@@ -8,7 +8,7 @@ Bot to export telegram stickers to images.
 ### Requirements
 
 * Node.js v4.0.0^
-* ImageMagick with webp support
+* ImageMagick with webp support (Check with `identify -list format | grep -i 'webp'` on *nix systems)
 
 ### Usage
 
