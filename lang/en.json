@@ -1,6 +1,6 @@
 {
   "msg": {
-    "start": "Hello!\nThis is StickerImage bot. You can send me some stickers and get a pack of image file.\n\nAvailable commands:\n\n- /newpack to start a new image pack\n- /finish to get compressed zip file, append 'png' if you want to get png images, blank for jpg. Width can be optionally specified at last (no more than 512, blank for 512).\n\nE.g., '/finish 128' will get jpg images resized at 128px in width, or '/finish png 160' for 160px width png files.",
+    "start": "Hello!\nThis is StickerImage bot. You can send me some stickers and get a zip file of images.\n\nAvailable commands:\n\n- /newpack to start a new image pack\n- /finish to get compressed zip file, append 'png' if you want to get png images, blank for jpg. Width can be optionally specified at last (no more than 512, blank for 512).\n\nE.g., '/finish 128' will get jpg images resized at 128px in width, or '/finish png 160' for 160px width png files.",
     "newpack": "OK now send me stickers (%max% max.)",
     "saved": "Sticker file saved. Your current pack have %remain% file slots left.",
     "downloading": "[1/4] Downloading images...",
