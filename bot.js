@@ -65,7 +65,7 @@ bot.onText(/\/finish\s?(png)?\s?(\d+)?/i, function (msg, match) {
             function (cb) {
                 console.log('[' + chatId + '] Downloading files...');
                 bot.sendMessage(chatId, messages.msg.downloading);
-                async.eachSeries(ramdb[chatId].files, function (fileId, callback) {
+                async.each(ramdb[chatId].files, function (fileId, callback) {
                     bot.downloadFile(fileId, path.resolve(srcpath))
                             .then(function (srcimg) {
                                 console.log('[' + chatId + '] File ' + fileId + ' saved to disk.');
