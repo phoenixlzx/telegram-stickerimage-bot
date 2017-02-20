@@ -146,8 +146,8 @@ bot.onText(/\/finish\s?(png)?\s?(\d+)?/i, function (msg, match) {
 
 bot.onText(/\/cancel*/i, function (msg) {
     var chatId = msg.chat.id;
-    if (ramdb[chatId] && (ramdb[chatId].islocked || ramdb[chatId].files.length > 0)) {
-        return bot.sendMessage(chatId, messages.msg.notask);
+    if (!ramdb[chatId]) {
+		return bot.sendMessage(chatId, messages.msg.notask);
     }
     delete ramdb[chatId];
     bot.sendMessage(chatId, messages.msg.taskcancelled);
@@ -175,6 +175,7 @@ bot.on('message', function (msg) {
 
 function cleanup(id) {
     console.log('[' + id + '] Cleaning up...');
-    ramdb[id] = undefined;
+    delete ramdb[id];
     fs.removeSync(path.resolve(config.file_storage + '/' + id));
 }
+
