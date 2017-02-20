@@ -11,6 +11,8 @@
     "taskexist": "You currently have a packaging task, please complete it first using /finish command. Send any other text to see help message.",
     "tasklocked": "You currently have a task running, please wait until the task is completed.",
     "taskfull": "Your queue is full, please use /finish to complete the task before starting a new one. Send any other text to see help message.",
+    "taskcancelled": "Your task bas been cancelled.",
+    "notask": "You currently do not have a task in queue. Maybe the bot restarted?",
     "error": "Ouch! An error just occurred."
   },
   "app": {

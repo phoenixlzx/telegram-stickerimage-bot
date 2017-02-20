@@ -144,6 +144,15 @@ bot.onText(/\/finish\s?(png)?\s?(\d+)?/i, function (msg, match) {
     }
 });
 
+bot.onText(/\/cancel*/i, function (msg) {
+    var chatId = msg.chat.id;
+    if (ramdb[chatId] && (ramdb[chatId].islocked || ramdb[chatId].files.length > 0)) {
+        return bot.sendMessage(chatId, messages.msg.notask);
+    }
+    delete ramdb[chatId];
+    bot.sendMessage(chatId, messages.msg.taskcancelled);
+});
+
 bot.on('message', function (msg) {
     var chatId = msg.chat.id;
 
@@ -155,7 +164,7 @@ bot.on('message', function (msg) {
         var remain = config.maximages - ramdb[chatId].files.length;
         bot.sendMessage(chatId, remain === 0 ? messages.msg.taskfull : messages.msg.saved.replace('%remain%', remain));
     } else {
-        if (!/(\/(finish|newpack))/i.exec(msg.text)) {
+        if (!/(\/(finish|newpack|cancel))/i.exec(msg.text)) {
             if (ramdb[chatId] && ramdb[chatId].islocked) {
                 return bot.sendMessage(chatId, messages.msg.tasklocked);
             }
