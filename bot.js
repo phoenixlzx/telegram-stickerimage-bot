@@ -67,12 +67,21 @@ bot.onText(/\/finish\s?(png)?\s?(\d+)?/i, function (msg, match) {
                 bot.sendMessage(chatId, messages.msg.downloading);
                 async.each(ramdb[chatId].files, function (fileId, callback) {
                     bot.downloadFile(fileId, path.resolve(srcpath))
-                            .then(function (srcimg) {
-                                console.log('[' + chatId + '] File ' + fileId + ' saved to disk.');
-                                ramdb[chatId].srcimg.push(srcimg);
-                                callback();
-                            });
-                    }, function () {
+                        .catch(function (err) {
+                            console.error('[' + chatId + '] ERROR', err.code, err.response.body);
+                            callback(err);
+                        })
+                        .then(function (srcimg) {
+                            console.log('[' + chatId + '] File ' + fileId + ' saved to disk.');
+                            ramdb[chatId].srcimg.push(srcimg);
+                            callback();
+                        });
+                    }, function (err) {
+                        if (err) {
+                            bot.sendMessage(chatId, messages.msg.errmsg
+                                .replace('%errcode%', err.code)
+                                .replace('%errbody%', err.response.body));
+                        }
                         cb();
                     });
             },

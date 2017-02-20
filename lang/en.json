@@ -13,7 +13,8 @@
     "taskfull": "Your queue is full, please use /finish to complete the task before starting a new one. Send any other text to see help message.",
     "taskcancelled": "Your task bas been cancelled.",
     "notask": "You currently do not have a task in queue. Maybe the bot restarted?",
-    "error": "Ouch! An error just occurred."
+    "error": "Ouch! An error just occurred.",
+    "errmsg": "Ahhh, An error occurred... \n\n%errcode%\n%errbody%\n\nPlease report this error to https://github.com/phoenixlzx/telegram-stickerimage-bot/issues (but in most cases this is due to telegram side)\n\nYou may use /cancel and /newpack to restart."
   },
   "app": {
     "storagepathnotexist": "Storage path not exist, creating."
