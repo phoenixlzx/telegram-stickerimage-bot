@@ -11,6 +11,9 @@ module.exports = {
     file_storage: './storage',
 
     // use language
-    lang: 'en'
+    default_lang: 'en',
+    available_lang: {
+        'en': ['English', 'English']
+    }
 };
 

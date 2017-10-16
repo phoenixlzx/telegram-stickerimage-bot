@@ -15,7 +15,7 @@ var token = config.token;
 var bot = new TelegramBot(token, {polling: true});
 im.convert.path = config.im_convert_path;
 
-var messages = JSON.parse(fs.readFileSync(path.resolve('./lang/' + config.lang + '.json'), 'utf8'));
+var messages = JSON.parse(fs.readFileSync(path.resolve('./lang/' + config.default_lang + '.json'), 'utf8'));
 
 var ramdb = {};
 // check storage path
@@ -25,6 +25,24 @@ fs.stat(fspath, function(err, stats) {
         console.log(messages.app.storagepathnotexist);
         fs.mkdirpSync(fspath);
     }
+});
+
+bot.onText(/\/lang\s?(\w{2})?/i, function (msg, match) {
+    var chatId = msg.chat.id,
+        chosen_lang = match[1];
+
+    if (config.available_lang.hasOwnProperty(chosen_lang)) {
+        messages = JSON.parse(fs.readFileSync(path.resolve('./lang/' + chosen_lang + '.json'), 'utf8'));
+        return bot.sendMessage(chatId, messages.msg.language_change)
+    }
+    var message = messages.msg.language_available,
+        languages_names = '';
+    for (var k in config.available_lang){
+        if (config.available_lang.hasOwnProperty(k)) {
+            languages_names += '\n' + '[' + k + '] ' + config.available_lang[k].join(' / ')
+        }
+    }
+    return bot.sendMessage(chatId, message .replace('%languages%', languages_names));
 });
 
 bot.onText(/\/newpack*/i, function (msg) {
@@ -173,7 +191,7 @@ bot.on('message', function (msg) {
         var remain = config.maximages - ramdb[chatId].files.length;
         bot.sendMessage(chatId, remain === 0 ? messages.msg.taskfull : messages.msg.saved.replace('%remain%', remain));
     } else {
-        if (!/(\/(finish|newpack|cancel))/i.exec(msg.text)) {
+        if (!/(\/(finish|newpack|cancel|lang))/i.exec(msg.text)) {
             if (ramdb[chatId] && ramdb[chatId].islocked) {
                 return bot.sendMessage(chatId, messages.msg.tasklocked);
             }
