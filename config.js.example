@@ -13,7 +13,8 @@ module.exports = {
     // use language
     default_lang: 'en',
     available_lang: {
-        'en': ['English', 'English']
+        'en': ['English', 'English'],
+        'de': ['German', 'Deutsch']
     }
 };
 
