@@ -72,6 +72,11 @@ bot.onText(/\/finish\s?(png)?\s?(\d+)?/i, function (msg, match) {
                             callback(err);
                         })
                         .then(function (srcimg) {
+                            if (srcimg.indexOf('.') === -1) {
+                                var new_srcimg = srcimg + '.webp';
+                                fs.rename(srcimg, new_srcimg);
+                                srcimg = new_srcimg;
+                            }
                             console.log('[' + chatId + '] File ' + fileId + ' saved to disk.');
                             ramdb[chatId].srcimg.push(srcimg);
                             callback();
