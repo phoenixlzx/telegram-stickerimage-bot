@@ -1,0 +1,24 @@
+{
+  "msg": {
+    "start": "Hallo!\nIch bin der StickerImage bot. Du kannts mir Stickers senden und ich mache dir eine Zip Datei mit den Bildernd daraus.\n\nVerfügbare Vefehle:\n\n- /newpack starte ein neues Päckchen\n- /finish um die Zip Datei herunterzuladen. Füge 'png' hinzu, wenn du die Bilder als png (Bilder mit transparentem Hintergrund) haben möchtest, ansonsten bekommst du jpgs (Bilder mit weissem Hintergrund). Zudem kannst du auch die Grösse der Bilder bestimmen. Die maximale Grösse beträgt 512px.\n\nBeispiele: \"/finish 128\" wird dir die Bilder als jpgs mit einer grösse von 128x128 Pixel senden, mit \"/finish png 160\" bekommst du die Bilder mit transparentem Hintergrund als pngs, mit einer Grösse von 160x160 Pixel.\n\n- /cancel Wenn du abbrechen willst.\n\n- /lang Um die Sprache zu wecheln.\n\nBeispiel: '/lang' zeige alle Sprachen an, '/lang en' wechsele die Sprache zu Englisch.",
+    "newpack": "OK sende mir nun die Stickers (%max% max.)",
+    "saved": "Sticker wurde gespeichert. Du kannst noch maximal %remain% Stickers hinzufügen. Benutzte /finish um die Bilder herunterzuladen. Wenn du noch hilfe brauchst kannst du mir irgend ein Text senden.",
+    "downloading": "[1/4] Lade Bilder herunter...",
+    "converting": "[2/4] Konvertiere Bilder...",
+    "packaging": "[3/4] Verpacke Bilder...",
+    "sending": "[4/4] Sende Zip Datei. Dies kann je nach anzahl Bilder einige Zeit dauern. Bitte warte einen Moment!",
+    "nosticker": "Sorry, du hast keine Bilder in der Warteschlange. Entweder du hast mir noch keine Sticker geschickt oder der Bot hat neu gestartet. Benutzte /newpack für ein neues Päckchen.",
+    "taskexist": "Du bist bereits an einem Päckchen. Schleiesse das ab mit /finish (für mehr Infos sende mir irgendein Text).",
+    "tasklocked": "Es wird bereits eine Task ausgeführt, warte bis diese fertig ist.",
+    "taskfull": "Du hast die maximale Anzahl an Bildern erreicht, benutzte /finish um die Bilder herunterzuladen (für mehr Infos sende mir irgendein Text).",
+    "taskcancelled": "Du hast das erstellen des Päckchen abgebrochen.",
+    "notask": "Momentan wird kein Päckchen erstellt. Möchtest du vielleicht ein Neues starten /newpack?",
+    "error": "Upps! Ein Fehler ist aufgetretten.",
+    "errmsg": "Upps! Ein Fehler ist aufgetretten... \n\n%errcode%\n%errbody%\n\n Melde diesen Fehler doch hier: https://github.com/phoenixlzx/telegram-stickerimage-bot/issues (Meistens ist dies jedoch wegen einem Fehler auf Seiten Telegrams).\n\nDu könntest abbrechen /cancel unde neu starten /newpack wenn du wilsst.",
+    "language_change": "Du hast Deutsch ausgewählt.",
+    "language_available": "Verfügbare Sprachen: %languages%\n\nBenutze /lang um eine Sprache auszuwählen. Beispiel: /lang de"
+  },
+  "app": {
+    "storagepathnotexist": "Storage path not exist, creating."
+  }
+}
