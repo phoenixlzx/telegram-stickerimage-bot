@@ -189,6 +189,9 @@ bot.on('message', function (msg) {
     var chatId = msg.chat.id;
 
     if (msg.sticker && ramdb[chatId] && !ramdb[chatId].islocked) {
+        if (ramdb[chatId].files[msg.sticker.file_id]) {
+            return bot.sendMessage(chatId, messages.msg.duplicated_sticker);
+        }
         if (ramdb[chatId].files.length >= config.maximages) {
             return bot.sendMessage(chatId, messages.msg.taskfull);
         }

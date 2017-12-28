@@ -13,6 +13,7 @@
     "taskfull": "Du hast die maximale Anzahl an Bildern erreicht, benutzte /finish um die Bilder herunterzuladen (für mehr Infos sende mir irgendein Text).",
     "taskcancelled": "Du hast das erstellen des Päckchen abgebrochen.",
     "notask": "Momentan wird kein Päckchen erstellt. Möchtest du vielleicht ein Neues starten /newpack?",
+    "duplicated_sticker": "Du hast mir diesen Aufkleber schon geschickt.",
     "error": "Upps! Ein Fehler ist aufgetretten.",
     "errmsg": "Upps! Ein Fehler ist aufgetretten... \n\n%errcode%\n%errbody%\n\n Melde diesen Fehler doch hier: https://github.com/phoenixlzx/telegram-stickerimage-bot/issues (Meistens ist dies jedoch wegen einem Fehler auf Seiten Telegrams).\n\nDu könntest abbrechen /cancel unde neu starten /newpack wenn du wilsst.",
     "language_change": "Du hast Deutsch ausgewählt.",
