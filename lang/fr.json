@@ -1,0 +1,25 @@
+{
+  "msg": {
+    "start": "Bonjour !\nJe suis le bot StickerImage. Vous pouvez m'envoyer des stickers afin de les obtenir sous la forme d'images dans une archive zip.\n\nCommandes disponibles :\n\n- /newpack pour commencer un nouveau pack\n- /finish pour obtenir une archive zip compressée, ajoutez 'png' si vous souhaitez obtenir les images png, laissez vide pour jpg. La taille peut être spécifiée en dernier (pas plus que 512, 512 par défaut soit en laissant vide).\n\nEx : '/finish 128' vous permet d'obtenir les images jpg de taille 128px, ou '/finish png 160' pour les fichiers png de taille 160px.\n\n- /cancel pour annuler toute tâche en cours.\n\n- /lang Change la langue.\n\nEx : '/lang' affiche les langues disponibles, '/lang en' change la langue en français.",
+    "newpack": "OK, maintenant envoyez-moi des stickers (%max% maximum)",
+    "saved": "Le sticker a été sauvegardé. Vous pouvez en ajouter encore %remain% dans le pack actuel. Envoyez-moi d'autres stickers pour les ajouter au pack ou tapez /finish pour obtenir le pack. Tout autre message provoquera l'affichage d'une aide.",
+    "downloading": "[1/4] Téléchargement des images...",
+    "converting": "[2/4] Conversion des images...",
+    "packaging": "[3/4] Compression des zip des fichiers...",
+    "sending": "[4/4] Envoi du fichier .zip, cela peut prendre un certain temps. Revenez plus tard !",
+    "nosticker": "Désolé, aucun sticker n'est en file d'attente. Peut-être que le bot a redémarré ou que vous n'avez tout simplement pas encore envoyé de sticker. Taper /newpack pour commencer.",
+    "taskexist": "Un pack est en cours de création, merci de finir cette tâche en tapant /finish. Tout autre message provoquera l'affichage d'une aide.",
+    "tasklocked": "Une tâche est en cours, merci de patienter jusqu'à ce qu'elle soit terminée.",
+    "taskfull": "Vous avez atteint la limite maximum, taper /finish pour finir la tâche actuelle avant d'en recommencer une. Tout autre message provoquera l'affichage d'une aide.",
+    "taskcancelled": "Votre tâche a été annulée.",
+    "notask": "Vous n'avez aucune tâche en cours. Peut-être que le bot a redémarré.",
+    "duplicated_sticker": "Vous m'avez déjà envoyé ce sticker.",
+    "error": "Aïe ! Une erreur est survenue.",
+    "errmsg": "AH! Une erreur est survenue... \n\n%errcode%\n%errbody%\n\nMerci de rapporter cette erreur à https://github.com/phoenixlzx/telegram-stickerimage-bot/issues (même si dans la plupart des cas cela vient de Telegram)\n\nYou may use /cancel and /newpack to restart.",
+    "language_change": "Vous avez sélectionné le français.",
+    "language_available": "Langues disponibles : %languages%\n\nTapez /lang suivi du code de la langue pour changer de langue. Ex : /lang en"
+  },
+  "app": {
+    "storagepathnotexist": "Le chemin d'accès pour le stockage n'existe pas, création."
+  }
+}
