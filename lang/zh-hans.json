@@ -1,0 +1,25 @@
+{
+  "msg": {
+    "start": "你好！\n这是一个表情包机器人。你可以给我发送一些表情包，然后收到这些表情的zip压缩文件。\n\n一些可用的指令：\n\n- /newpack 开始一个新的表情包收集队列\n- /finish 结束收集并获取zip压缩包，如果您想获得png格式的话，添加 'png'，默认留空的话就是jpg格式。宽度可以在最后指定（不要超过512，默认为512）。\n\n例如，'/finish 128'将会得到宽度为128像素的jpg图像，又如'/finish png 160'可得到160像素宽的png图像。\n\n- /cancel 取消队列中的任何任务。\n\n- /lang 改变语言\n\n例如，'/lang'展现所有可用的语言，'/lang de'把语言转换为德语。",
+    "newpack": "好的，准备好了，现在向我发送表情吧！(%max% max.)",
+    "saved": "表情保存啦！你当前建立的收集队列还剩余有 %remain% 张表情可以添加。向我发送更多表情来继续，或者使用/finish来得到你的收集队列。发送任意文本获取帮助信息。",
+    "downloading": "[1/4] 下载图片中...",
+    "converting": "[2/4] 转换图片中...",
+    "packaging": "[3/4] 打包所有文件...",
+    "sending": "[4/4] 正在发送zip压缩包，这可能需要一点时间——休息，休息一下！",
+    "nosticker": "抱歉，但你的收集队列里没有表情。也许是机器人重启了，或者是您还没有发送表情？常使用 /newpack 命令开始。",
+    "taskexist": "你当前正有一个收集队列。请用 /finish 指令先结束掉它。发送任意文本获取帮助信息。",
+    "tasklocked": "你当前正有一个运行中的任务，请稍候直到该任务完成。",
+    "taskfull": "你的收集队列满了！请用 /finish 命令来结束该任务以开始下一个收集队列。发送任意文本获取帮助信息。",
+    "taskcancelled": "你的任务已经被取消。",
+    "notask": "你当前没有任务在排队。也许是机器人重启了？",
+    "duplicated_sticker": "你向我发过这个表情啦o(￣▽￣)o",
+    "error": "哦……发生了一点错误orz",
+    "errmsg": "啊啊, 发生了一个错误... \n\n%errcode%\n%errbody%\n\n请向 https://github.com/phoenixlzx/telegram-stickerimage-bot/issues 报告错误 (不过一般情况下这是Telegram方面的锅)\n\n你可以用 /cancel 取消，然后用 /newpack 重新开始。",
+    "language_change": "你选择了简体中文。",
+    "language_available": "可用的语言： %languages%\n\n用 /lang 加上语言代码来切换语言。例如： /lang en"
+  },
+  "app": {
+    "storagepathnotexist": "储存路径不存在，创建中……"
+  }
+}
