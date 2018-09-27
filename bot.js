@@ -170,7 +170,8 @@ function generalMsgHandler (ctx) {
     if (ramdb[chatId] && !ramdb[chatId].islocked) {
         if (ctx.message.sticker) {
             addSticker(ctx);
-        } else if (ctx.message.entities) {
+        }
+        if (ctx.message.entities) {
             // try to add sets of stickers
             ctx.message.entities.forEach(function (e) {
                 if (e.type === 'url') {
