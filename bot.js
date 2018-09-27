@@ -209,7 +209,7 @@ function downloadHanlder (ctx, fpath, callback) {
     let chatId = ctx.message.chat.id;
     logger(chatId, 'info', 'Downloading files...');
     ctx.reply(messages.msg.downloading);
-    async.each(ramdb[chatId].files, function (fileId, cb) {
+    async.eachSeries(ramdb[chatId].files, function (fileId, cb) {
         bot.telegram.getFileLink(fileId)
             .then(function(url) {
                 let destFile = fpath.srcpath + path.basename(url);
