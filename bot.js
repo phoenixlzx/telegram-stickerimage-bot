@@ -316,7 +316,7 @@ function addSet (ctx, set) {
     let chatId = ctx.message.chat.id;
     let originCount = ramdb[chatId].files.length;
     set.stickers.forEach(function (s) {
-        if (ramdb[chatId].files.length => config.maximages) return ctx.reply(messages.msg.taskfull);
+        if (ramdb[chatId].files.length >= config.maximages) return ctx.reply(messages.msg.taskfull);
         if (ramdb[chatId].files.indexOf(s.file_id) === -1) {
             ramdb[chatId].files.push(s.file_id);
         }
