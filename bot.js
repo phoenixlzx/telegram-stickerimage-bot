@@ -333,7 +333,7 @@ function download (url, dest, callback) {
             callback(err.message);
         });
     file.on('finish', function() {
-        file.close(callback, dest);
+        file.close(callback);
     });
 }
 
