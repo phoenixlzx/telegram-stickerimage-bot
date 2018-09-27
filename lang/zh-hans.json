@@ -17,7 +17,9 @@
     "error": "哦……发生了一点错误orz",
     "errmsg": "啊啊, 发生了一个错误... \n\n%errcode%\n%errbody%\n\n请向 https://github.com/phoenixlzx/telegram-stickerimage-bot/issues 报告错误 (不过一般情况下这是Telegram方面的锅)\n\n你可以用 /cancel 取消，然后用 /newpack 重新开始。",
     "language_change": "你选择了简体中文。",
-    "language_available": "可用的语言： %languages%\n\n用 /lang 加上语言代码来切换语言。例如： /lang en"
+    "language_available": "可用的语言： %languages%\n\n用 /lang 加上语言代码来切换语言。例如： /lang en",
+    "get_set_info": "获取表情包信息中，请稍等...",
+    "set_added_count": "已从表情包添加 %sticker_count% 个表情。"
   },
   "app": {
     "storagepathnotexist": "储存路径不存在，创建中……"

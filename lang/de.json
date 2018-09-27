@@ -17,7 +17,9 @@
     "error": "Upps! Ein Fehler ist aufgetretten.",
     "errmsg": "Upps! Ein Fehler ist aufgetretten... \n\n%errcode%\n%errbody%\n\n Melde diesen Fehler doch hier: https://github.com/phoenixlzx/telegram-stickerimage-bot/issues (Meistens ist dies jedoch wegen einem Fehler auf Seiten Telegrams).\n\nDu könntest abbrechen /cancel unde neu starten /newpack wenn du wilsst.",
     "language_change": "Du hast Deutsch ausgewählt.",
-    "language_available": "Verfügbare Sprachen: %languages%\n\nBenutze /lang um eine Sprache auszuwählen. Beispiel: /lang de"
+    "language_available": "Verfügbare Sprachen: %languages%\n\nBenutze /lang um eine Sprache auszuwählen. Beispiel: /lang de",
+    "get_set_info": "Getting Sticker Set information, please wait...",
+    "set_added_count": "Added %sticker_count% from sticker set(s)."
   },
   "app": {
     "storagepathnotexist": "Storage path not exist, creating."

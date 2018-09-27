@@ -17,7 +17,9 @@
     "error": "Aïe ! Une erreur est survenue.",
     "errmsg": "AH! Une erreur est survenue... \n\n%errcode%\n%errbody%\n\nMerci de rapporter cette erreur à https://github.com/phoenixlzx/telegram-stickerimage-bot/issues (même si dans la plupart des cas cela vient de Telegram)\n\nYou may use /cancel and /newpack to restart.",
     "language_change": "Vous avez sélectionné le français.",
-    "language_available": "Langues disponibles : %languages%\n\nTapez /lang suivi du code de la langue pour changer de langue. Ex : /lang en"
+    "language_available": "Langues disponibles : %languages%\n\nTapez /lang suivi du code de la langue pour changer de langue. Ex : /lang en",
+    "get_set_info": "Getting Sticker Set information, please wait...",
+    "set_added_count": "Added %sticker_count% from sticker set(s)."
   },
   "app": {
     "storagepathnotexist": "Le chemin d'accès pour le stockage n'existe pas, création."

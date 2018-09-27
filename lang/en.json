@@ -1,7 +1,7 @@
 {
   "msg": {
     "start": "Hello!\nThis is StickerImage bot. You can send me some stickers and get a zip file of images.\n\nAvailable commands:\n\n- /newpack to start a new image pack\n- /finish to get compressed zip file, append 'png' if you want to get png images, blank for jpg. Width can be optionally specified at last (no more than 512, blank for 512).\n\nE.g., '/finish 128' will get jpg images resized at 128px in width, or '/finish png 160' for 160px width png files.\n\n- /cancel to cancel any task in your queue.\n\n- /lang Change the language.\n\nEg. '/lang' show available languages, '/lang de' change the language to german.",
-    "newpack": "OK now send me stickers (%max% max.)",
+    "newpack": "OK now send me stickers (%max% max.), or send me sticker set links.",
     "saved": "Sticker file saved. Your current pack have %remain% file slots left. Send me more stickers to queue or use /finish to get the pack. Any other text to see help message.",
     "downloading": "[1/4] Downloading images...",
     "converting": "[2/4] Converting images...",
