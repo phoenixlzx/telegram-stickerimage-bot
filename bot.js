@@ -26,13 +26,13 @@ let ramdb = {};
 let fspath = path.resolve(config.file_storage);
 fs.stat(fspath, function(err, stats) {
     if (err && err.code === 'ENOENT') {
-        console.log(messages.app.storagepathnotexist);
+        logger('INTERNAL', 'info', messages.app.storagepathnotexist);
         fs.mkdirpSync(fspath);
     }
 });
 
 bot.catch(function (err) {
-    console.log(err);
+    logger('INTERNAL', 'error', err);
 });
 
 bot.command('lang', function (ctx) {
@@ -41,6 +41,13 @@ bot.command('lang', function (ctx) {
 
 bot.command('newpack', function (ctx) {
     newPackHandler(ctx);
+});
+
+bot.command('addset', function (ctx) {
+    let chatId = ctx.message.chat.id;
+    stickerSetHandler(ctx, function (setInfo) {
+
+    })
 });
 
 bot.command('finish', function (ctx) {
@@ -160,20 +167,22 @@ function cancellationHandler (ctx) {
 function generalMsgHandler (ctx) {
     let chatId = ctx.message.chat.id;
     if (ctx.chat.type !== 'private') return; // do not reply to group or channels ( unless mentioned? #TODO
-    if (ctx.message.sticker && ramdb[chatId] && !ramdb[chatId].islocked) {
-        if (ramdb[chatId].files.indexOf(ctx.message.sticker.file_id) !== -1) {
-            return ctx.reply(messages.msg.duplicated_sticker, Extra.inReplyTo(ctx.message.message_id));
+    if (ramdb[chatId] && !ramdb[chatId].islocked) {
+        if (ctx.message.sticker) {
+            addSticker(ctx);
+        } else if (ctx.message.entities) {
+            // try to add sets of stickers
+            ctx.message.entities.forEach(function (e) {
+                if (e.type === 'url') {
+                    let url = ctx.message.text.slice(e.offset, e.offset + e.length);
+                    if (url.startsWith('https://t.me/addstickers/') &&
+                        url.length > 25)
+                    stickerSetHandler(ctx, path.basename(url));
+                }
+            });
         }
-        if (ramdb[chatId].files.length >= config.maximages) {
-            return ctx.reply(messages.msg.taskfull);
-        }
-        ramdb[chatId].files.push(ctx.message.sticker.file_id);
-        let remain = config.maximages - ramdb[chatId].files.length;
-        return ctx.reply(remain === 0 ? messages.msg.taskfull : messages.msg.saved.replace('%remain%', remain));
     } else {
-        if (ctx.state.command && ['finish', 'newpack', 'cancel', 'lang', 'getset'].indexOf(ctx.state.command.command) === -1) {
-            return ctx.reply((ramdb[chatId] && ramdb[chatId].islocked) ? messages.msg.tasklocked : messages.msg.start);
-        }
+        ctx.reply((ramdb[chatId] && ramdb[chatId].islocked) ? messages.msg.tasklocked : messages.msg.start);
     }
 }
 
@@ -259,12 +268,12 @@ function zipHandler (ctx, callback) {
     let zip = new JSZip();
     ramdb[chatId].srcimg.forEach(function (src) {
         let fname = chatId + '/src/' + path.basename(src);
-        logger(chatId, 'info', 'Adding file ', fname);
+        logger(chatId, 'info', 'Adding file ' + fname);
         zip.file(fname, fs.readFileSync(path.resolve(src)));
     });
     ramdb[chatId].destimg.forEach(function (dest) {
         let fname = chatId + '/img/' + path.basename(dest);
-        logger(chatId, 'info', 'Adding file ', fname);
+        logger(chatId, 'info', 'Adding file ' + fname);
         zip.file(fname, fs.readFileSync(path.resolve(dest)));
     });
     logger(chatId, 'info', 'Packaging files...');
@@ -277,6 +286,41 @@ function zipHandler (ctx, callback) {
         .then(function (content) {
             callback(null, content);
         });
+}
+
+function stickerSetHandler (ctx, setName) {
+    let chatId = ctx.message.chat.id;
+    ctx.reply(messages.msg.get_set_info);
+    bot.telegram.getStickerSet(setName)
+        .then(function (set) {
+            logger(chatId, 'info', 'Adding Sticker Set: ' + setName);
+            addSet(ctx, set);
+        });
+}
+
+function addSticker(ctx) {
+    let chatId = ctx.message.chat.id;
+    if (ramdb[chatId].files.indexOf(ctx.message.sticker.file_id) !== -1) {
+        return ctx.reply(messages.msg.duplicated_sticker, Extra.inReplyTo(ctx.message.message_id));
+    }
+    if (ramdb[chatId].files.length >= config.maximages) {
+        return ctx.reply(messages.msg.taskfull);
+    }
+    ramdb[chatId].files.push(ctx.message.sticker.file_id);
+    let remain = config.maximages - ramdb[chatId].files.length;
+    ctx.reply(remain === 0 ? messages.msg.taskfull : messages.msg.saved.replace('%remain%', remain));
+}
+
+function addSet (ctx, set) {
+    let chatId = ctx.message.chat.id;
+    let originCount = ramdb[chatId].files.length;
+    set.stickers.forEach(function (s) {
+        if (ramdb[chatId].files.length > config.maximages) return ctx.reply(messages.msg.taskfull);
+        if (ramdb[chatId].files.indexOf(s.file_id) === -1) {
+            ramdb[chatId].files.push(s.file_id);
+        }
+    });
+    ctx.reply(messages.msg.set_added_count.replace('%sticker_count%', ramdb[chatId].files.length - originCount));
 }
 
 function download (url, dest, callback) {
