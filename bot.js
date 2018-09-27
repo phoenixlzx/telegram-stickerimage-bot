@@ -1,29 +1,29 @@
 #!/bin/env node
 'use strict';
 
-var config = require('./config.js');
+const config = require('./config.js');
 
-var fs = require('fs-extra');
-var path = require('path');
+const fs = require('fs-extra');
+const path = require('path');
 
-var Telegraf = require('telegraf');
-var commandParts = require('telegraf-command-parts');
-var im = require('imagemagick');
-var JSZip = require("jszip");
-var async = require('async');
-var http = require('http');
+const Telegraf = require('telegraf');
+const Extra = require('telegraf/extra');
+const commandParts = require('telegraf-command-parts');
+const im = require('imagemagick');
+const JSZip = require("jszip");
+const async = require('async');
+const request = require('request');
 
-var token = config.token;
-var bot = new Telegraf(token);
+const bot = new Telegraf(config.token, {username: config.username});
 
-bot.use(commandParts);
+bot.use(commandParts());
 im.convert.path = config.im_convert_path;
 
-var messages = JSON.parse(fs.readFileSync(path.resolve('./lang/' + config.default_lang + '.json'), 'utf8'));
+let messages = JSON.parse(fs.readFileSync(path.resolve('./lang/' + config.default_lang + '.json'), 'utf8'));
 
-var ramdb = {};
+let ramdb = {};
 // check storage path
-var fspath = path.resolve(config.file_storage);
+let fspath = path.resolve(config.file_storage);
 fs.stat(fspath, function(err, stats) {
     if (err && err.code === 'ENOENT') {
         console.log(messages.app.storagepathnotexist);
@@ -44,29 +44,25 @@ bot.command('newpack', function (ctx) {
 });
 
 bot.command('finish', function (ctx) {
-    var chatId = msg.chat.id;
+    let chatId = ctx.message.chat.id;
     if (ramdb[chatId] && ramdb[chatId].islocked) {
         return bot.sendMessage(chatId, messages.msg.tasklocked);
     }
-    var r = new RegExp(/\s?(png)?\s?(\d+)?/i);
-    var match = r.exec(ctx.state.command.args);
-    var imopts = {
+    let r = new RegExp(/\s?(png)?\s?(\d+)?/i);
+    let match = r.exec(ctx.state.command.args);
+    let imopts = {
         format: match[1],
         width: parseInt(match[2])
     };
     if (ramdb[chatId] && ramdb[chatId].files.length > 0) {
         finishHandler(ctx, imopts);
     } else {
-        ctx.telegram.sendMessage(chatId, messages.msg.nosticker);
+        ctx.reply(messages.msg.nosticker);
     }
 });
 
 bot.command('cancel', function (ctx) {
     cancellationHandler(ctx);
-});
-
-bot.start(function (ctx) {
-    return ctx.telegram.sendMessage(messages.msg.start);
 });
 
 bot.on('message', function (ctx) {
@@ -76,44 +72,44 @@ bot.on('message', function (ctx) {
 bot.startPolling();
 
 function errMsgHandler(ctx, err) {
-    var chatId = ctx.message.chat.id;
+    let chatId = ctx.message.chat.id;
     if (err) {
-        ctx.telegram.sendMessage(chatId, messages.msg.errmsg
+        ctx.reply(messages.msg.errmsg
             .replace('%errcode%', err.code)
             .replace('%errbody%', err.response.body));
     } else {
-        ctx.telegram.sendMessage(chatId, messages.msg.error);
+        ctx.reply(messages.msg.error);
     }
     return cleanup(chatId);
 }
 function newPackHandler (ctx) {
-    var chatId = ctx.message.chat.id;
+    let chatId = ctx.message.chat.id;
     if (ramdb[chatId] && ramdb[chatId].islocked) {
-        return ctx.telegram.sendMessage(chatId, messages.msg.tasklocked);
+        return ctx.reply(messages.msg.tasklocked);
     }
     if (ramdb[chatId] && ramdb[chatId].files.length > 0) {
-        return ctx.telegram.sendMessage(chatId, messages.msg.taskexist);
+        return ctx.reply(messages.msg.taskexist);
     }
     ramdb[chatId] = {
-        start: msg.date,
+        start: ctx.message.date,
         files: [],
         srcimg: [],
         destimg: [],
         islocked: false
     };
     logger(chatId, 'info', 'Started a new pack task.');
-    return ctx.telegram.sendMessage(chatId, messages.msg.newpack.replace('%max%', config.maximages));
+    return ctx.reply(messages.msg.newpack.replace('%max%', config.maximages));
 }
 
 function finishHandler (ctx, imopts) {
-    var chatId = ctx.message.chat.id;
+    let chatId = ctx.message.chat.id;
     logger(chatId, 'info', 'Starting pack task...');
     ramdb[chatId].islocked = true;
-    var fpath = {
+    let fpath = {
         packpath: config.file_storage + '/' + chatId
     };
-    fpath['srcpath'] = packpath + '/src/';
-    fpath['imgpath'] = packpath + '/img/';
+    fpath['srcpath'] = fpath.packpath + '/src/';
+    fpath['imgpath'] = fpath.packpath + '/img/';
     fs.mkdirpSync(path.resolve(fpath.packpath));
     fs.mkdirpSync(path.resolve(fpath.srcpath));
     fs.mkdirpSync(path.resolve(fpath.imgpath));
@@ -137,8 +133,12 @@ function finishHandler (ctx, imopts) {
             if (err) {
                 errMsgHandler(ctx, err);
             }
-            ctx.telegram.sendMessage(chatId, messages.msg.sending);
-            ctx.telegram.sendDocument(chatId, res[2]);
+            ctx.reply(messages.msg.sending);
+            ctx.telegram.sendDocument(ctx.from.id, {
+                source: res[2],
+                filename: 'stickers_' + chatId + '.zip'
+            }).catch(function(err){ errMsgHandler(ctx, err) });
+
             logger(chatId, 'info', 'Sending zip file...');
             cleanup(chatId);
             logger(chatId, 'info', 'Task finished.');
@@ -147,90 +147,91 @@ function finishHandler (ctx, imopts) {
 }
 
 function cancellationHandler (ctx) {
-    var chatId = ctx.message.chat.id;
+    let chatId = ctx.message.chat.id;
     if (!ramdb[chatId]) {
-        return ctx.telegram.sendMessage(chatId, messages.msg.notask);
+        return ctx.reply(messages.msg.notask);
     }
     delete ramdb[chatId];
     cleanup(chatId);
     logger(chatId, 'info', 'Task Cancelled.');
-    return ctx.telegram.sendMessage(chatId, messages.msg.taskcancelled);
+    return ctx.reply(messages.msg.taskcancelled);
 }
 
 function generalMsgHandler (ctx) {
-    var chatId = ctx.message.chat.id;
-    if (ctx.chat.type !== 'private' && ctx.state.command.bot !== ctx.me) return; // do not reply to group or channels unless mentioned
+    let chatId = ctx.message.chat.id;
+    if (ctx.chat.type !== 'private') return; // do not reply to group or channels ( unless mentioned? #TODO
     if (ctx.message.sticker && ramdb[chatId] && !ramdb[chatId].islocked) {
         if (ramdb[chatId].files.indexOf(ctx.message.sticker.file_id) !== -1) {
-            return ctx.telegram.sendMessage(chatId, ctx.message.message_id, messages.msg.duplicated_sticker);
+            return ctx.reply(messages.msg.duplicated_sticker, Extra.inReplyTo(ctx.message.message_id));
         }
         if (ramdb[chatId].files.length >= config.maximages) {
-            return ctx.telegram.sendMessage(chatId, messages.msg.taskfull);
+            return ctx.reply(messages.msg.taskfull);
         }
         ramdb[chatId].files.push(ctx.message.sticker.file_id);
-        var remain = config.maximages - ramdb[chatId].files.length;
-        return ctx.telegram.sendMessage(chatId, remain === 0 ? messages.msg.taskfull : messages.msg.saved.replace('%remain%', remain));
+        let remain = config.maximages - ramdb[chatId].files.length;
+        return ctx.reply(remain === 0 ? messages.msg.taskfull : messages.msg.saved.replace('%remain%', remain));
     } else {
-        if (['finish', 'newpack', 'cancel', 'lang', 'getset'].indexOf(ctx.state.command.command) === -1) {
-            return ctx.telegram.sendMessage(chatId,
-                (ramdb[chatId] && ramdb[chatId].islocked) ? messages.msg.tasklocked : messages.msg.start);
+        if (ctx.state.command && ['finish', 'newpack', 'cancel', 'lang', 'getset'].indexOf(ctx.state.command.command) === -1) {
+            return ctx.reply((ramdb[chatId] && ramdb[chatId].islocked) ? messages.msg.tasklocked : messages.msg.start);
         }
     }
 }
 
 function i18nHandler (ctx) {
-    var chatId = ctx.message.chat.id,
+    let chatId = ctx.message.chat.id,
         chosen_lang = ctx.state.command.args.replace(/\s+/g, ''); // strip spaces
     if (config.available_lang.hasOwnProperty(chosen_lang)) {
         messages = JSON.parse(fs.readFileSync(path.resolve('./lang/' + chosen_lang + '.json'), 'utf8'));
         logger(chatId, 'info', 'Changing language to: ' + chosen_lang);
-        return ctx.telegram.sendMessage(chatId, messages.msg.language_change)
+        return ctx.reply(messages.msg.language_change)
     }
-    var message = messages.msg.language_available,
+    let message = messages.msg.language_available,
         languages_names = '';
-    for (var k in config.available_lang){
+    for (let k in config.available_lang){
         if (config.available_lang.hasOwnProperty(k)) {
             languages_names += '\n' + '[' + k + '] ' + config.available_lang[k].join(' / ')
         }
     }
-    return ctx.telegram.sendMessage(chatId, message.replace('%languages%', languages_names));
+    return ctx.reply(message.replace('%languages%', languages_names));
 }
 
 function downloadHanlder (ctx, fpath, callback) {
-    var chatId = ctx.message.chat.id;
+    let chatId = ctx.message.chat.id;
     logger(chatId, 'info', 'Downloading files...');
-    ctx.telegram.sendMessage(chatId, messages.msg.downloading);
+    ctx.reply(messages.msg.downloading);
     async.each(ramdb[chatId].files, function (fileId, cb) {
-        var url = bot.telegram.getFilelink(fileId);
-        var srcimg = fpath.srcpath + path.basename(url);
-        download(url, srcimg, function (err, srcimg) {
-            if (err) {
-                logger(chatId, 'error', 'Downloading file [' + fileId + '] from ' + url);
-                return cb(err);
-            }
-            if (srcimg.indexOf('.') === -1) {
-                var new_srcimg = srcimg + '.webp';
-                fs.renameSync(srcimg, new_srcimg);
-                srcimg = new_srcimg;
-            }
-            logger(chatId, 'info', 'File ' + fileId + ' saved to disk.');
-            ramdb[chatId].srcimg.push(srcimg);
-            cb();
-        })
+        bot.telegram.getFileLink(fileId)
+            .then(function(url) {
+                let destFile = fpath.srcpath + path.basename(url);
+                download(url, destFile, function (err) {
+                    if (err) {
+                        logger(chatId, 'error', 'Downloading file [' + fileId + '] from ' + url);
+                        return cb(err);
+                    }
+                    if (destFile && destFile.indexOf('.') === -1) {
+                        let new_dest = destFile + '.webp';
+                        fs.renameSync(destFile, new_dest);
+                        destFile = new_dest;
+                    }
+                    logger(chatId, 'info', 'File ' + fileId + ' saved to disk.');
+                    ramdb[chatId].srcimg.push(destFile);
+                    cb();
+                });
+            });
     }, function (err) {
         callback(err);
     });
 }
 
 function convertHandler (ctx, fpath, imopts, callback) {
-    var chatId = ctx.message.chat.id;
-    var width = imopts.width;
-    var format = imopts.format;
+    let chatId = ctx.message.chat.id;
+    let width = imopts.width;
+    let format = imopts.format;
     logger(chatId, 'info', 'Converting images...');
-    ctx.telegram.sendMessage(chatId, messages.msg.converting);
+    ctx.reply(messages.msg.converting);
     async.eachSeries(ramdb[chatId].srcimg, function (src, cb) {
-        var imarg = [src];
-        var destimg = path.resolve(fpath.imgpath + '/' + path.basename(src, 'webp') + 'jpg');
+        let imarg = [src];
+        let destimg = path.resolve(fpath.imgpath + '/' + path.basename(src, 'webp') + 'jpg');
         if (width && width < 512) {
             imarg.push('-resize', width + 'x' + width);
         }
@@ -252,17 +253,17 @@ function convertHandler (ctx, fpath, imopts, callback) {
 }
 
 function zipHandler (ctx, callback) {
-    var chatId = ctx.message.chat.id;
-    ctx.telegram.sendMessage(chatId, messages.msg.packaging);
+    let chatId = ctx.message.chat.id;
+    ctx.reply(messages.msg.packaging);
     logger(chatId, 'info', 'Adding files to ZIP file...');
-    var zip = new JSZip();
+    let zip = new JSZip();
     ramdb[chatId].srcimg.forEach(function (src) {
-        var fname = chatId + '/src/' + path.basename(src);
+        let fname = chatId + '/src/' + path.basename(src);
         logger(chatId, 'info', 'Adding file ', fname);
         zip.file(fname, fs.readFileSync(path.resolve(src)));
     });
     ramdb[chatId].destimg.forEach(function (dest) {
-        var fname = chatId + '/img/' + path.basename(dest);
+        let fname = chatId + '/img/' + path.basename(dest);
         logger(chatId, 'info', 'Adding file ', fname);
         zip.file(fname, fs.readFileSync(path.resolve(dest)));
     });
@@ -279,15 +280,15 @@ function zipHandler (ctx, callback) {
 }
 
 function download (url, dest, callback) {
-    var file = fs.createWriteStream(dest);
-    var request = http.get(url, function (response) {
-        response.pipe(file);
-        file.on('finish', function() {
-            file.close(callback);
+    let file = fs.createWriteStream(dest);
+    request.get(url)
+        .pipe(file)
+        .on('error', function (err) {
+            fs.unlink(dest);
+            callback(err.message);
         });
-    }).on('error', function (err) {
-        fs.unlink(dest);
-        callback(err.message);
+    file.on('finish', function() {
+        file.close(callback, dest);
     });
 }
 
