@@ -92,6 +92,7 @@ function errMsgHandler(ctx, err) {
     }
     return cleanup(chatId);
 }
+
 function newPackHandler (ctx) {
     let chatId = ctx.message.chat.id;
     if (ramdb[chatId] && ramdb[chatId].islocked) {
