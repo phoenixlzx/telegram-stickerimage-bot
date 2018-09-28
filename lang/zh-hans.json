@@ -19,7 +19,8 @@
     "language_change": "你选择了简体中文。",
     "language_available": "可用的语言： %languages%\n\n用 /lang 加上语言代码来切换语言。例如： /lang en",
     "get_set_info": "获取表情包信息中，请稍等...",
-    "set_added_count": "已从表情包添加 %sticker_count% 个表情。"
+    "set_added_count": "已从表情包添加 %sticker_count% 个表情。",
+    "err_get_filelink": "获取文件 %fileId% 的地址时出错，跳过..."
   },
   "app": {
     "storagepathnotexist": "储存路径不存在，创建中……"

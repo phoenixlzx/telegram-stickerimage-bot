@@ -19,7 +19,8 @@
     "language_change": "你選擇了簡體中文。",
     "language_available": "可用的語言： %languages%\n\n用 /lang 加上語言代碼來切換語言。例如： /lang en",
     "get_set_info": "Getting Sticker Set information, please wait...",
-    "set_added_count": "Added %sticker_count% from sticker set(s)."
+    "set_added_count": "Added %sticker_count% from sticker set(s).",
+    "err_get_filelink": "Error when trying to get file link for %fileId%. Skipping..."
   },
   "app": {
     "storagepathnotexist": "儲存路徑不存在，創建中……"

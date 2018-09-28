@@ -231,8 +231,15 @@ function downloadHanlder (ctx, fpath, callback) {
                     }
                     logger(chatId, 'info', 'File ' + fileId + ' saved to disk.');
                     ramdb[chatId].srcimg.push(destFile);
-                    cb();
                 });
+            })
+            .catch(function (err) {
+                ctx.reply(messages[langSession[chatId]].msg.err_get_filelink.replace('%fileId%', fileId));
+                logger(chatId, 'error', 'Get File Link for ' + fileId + ': ' + err);
+            })
+            .finally(function () {
+                // invoke callback no matter the link is correct
+                cb();
             });
     }, function (err) {
         callback(err);

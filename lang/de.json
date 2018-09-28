@@ -19,7 +19,8 @@
     "language_change": "Du hast Deutsch ausgewählt.",
     "language_available": "Verfügbare Sprachen: %languages%\n\nBenutze /lang um eine Sprache auszuwählen. Beispiel: /lang de",
     "get_set_info": "Getting Sticker Set information, please wait...",
-    "set_added_count": "Added %sticker_count% from sticker set(s)."
+    "set_added_count": "Added %sticker_count% from sticker set(s).",
+    "err_get_filelink": "Error when trying to get file link for %fileId%. Skipping..."
   },
   "app": {
     "storagepathnotexist": "Storage path not exist, creating."
