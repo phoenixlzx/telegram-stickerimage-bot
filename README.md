@@ -3,11 +3,11 @@ StickerImageBot
 
 Bot to export telegram stickers to images. [Here is a sample one to play with (Not sure it's running)](https://telegram.me/stickerset2packbot)
 
-**Due to the limitation and lack of Telegram API/Documentation, You MUST send all stickers you want to export.**
+Send individual stickers or sticker links (something like `https://t.me/addstickers/AniColle`) to prepare a zip of sticker image file.
 
 ### Requirements
 
-* Node.js v4.0.0^
+* Node.js v8.0.0^
 * ImageMagick with webp support (Check with `identify -list format | grep -i 'webp'` on *nix systems)
 
 ### Usage
