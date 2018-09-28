@@ -310,6 +310,10 @@ function stickerSetHandler (ctx, setName) {
             }
             logger(chatId, 'info', 'Adding Sticker Set: ' + setName);
             addSet(ctx, set);
+        })
+        .catch(function (err) {
+            logger(chatId, 'error', 'Error Adding Sticker Set: ' + setName + ': ' + err);
+            ctx.reply(messages[langSession[chatId]].msg.invalid_set.replace('%setName%', setName));
         });
 }
 

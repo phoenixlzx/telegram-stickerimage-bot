@@ -20,7 +20,8 @@
     "language_available": "可用的語言： %languages%\n\n用 /lang 加上語言代碼來切換語言。例如： /lang en",
     "get_set_info": "Getting Sticker Set information, please wait...",
     "set_added_count": "Added %sticker_count% from sticker set(s).",
-    "err_get_filelink": "Error when trying to get file link for %fileId%. Skipping..."
+    "err_get_filelink": "Error when trying to get file link for %fileId%. Skipping...",
+    "invalid_set": "Error when trying to get information for %setName%."
   },
   "app": {
     "storagepathnotexist": "儲存路徑不存在，創建中……"
