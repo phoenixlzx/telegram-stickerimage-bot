@@ -16,21 +16,22 @@ const request = require('request');
 
 const bot = new Telegraf(config.token, {username: config.username});
 
-const i18n = function (ctx, next) {
-    if (!ctx.state.lang) {
-        ctx.state.lang = config.default_lang;
-    }
-    return next();
-};
-
 bot.use(commandParts());
-bot.use(i18n());
 im.convert.path = config.im_convert_path;
 
 let messages = {};
 loadLang();
 
 let ramdb = {};
+let langSession = {};
+
+bot.use(function (ctx, next) {
+    if (!langSession[ctx.message.chat.id]) {
+        langSession[ctx.message.chat.id] = config.default_lang;
+    }
+    return next();
+});
+
 // check storage path
 let fspath = path.resolve(config.file_storage);
 fs.stat(fspath, function(err, stats) {
@@ -55,7 +56,7 @@ bot.command('newpack', function (ctx) {
 bot.command('finish', function (ctx) {
     let chatId = ctx.message.chat.id;
     if (ramdb[chatId] && ramdb[chatId].islocked) {
-        return bot.sendMessage(chatId, messages[ctx.state.lang].msg.tasklocked);
+        return bot.sendMessage(chatId, messages[langSession[chatId]].msg.tasklocked);
     }
     let r = new RegExp(/\s?(png)?\s?(\d+)?/i);
     let match = r.exec(ctx.state.command.args);
@@ -66,7 +67,7 @@ bot.command('finish', function (ctx) {
     if (ramdb[chatId] && ramdb[chatId].files.length > 0) {
         finishHandler(ctx, imopts);
     } else {
-        ctx.reply(messages[ctx.state.lang].msg.nosticker);
+        ctx.reply(messages[langSession[chatId]].msg.nosticker);
     }
 });
 
@@ -83,21 +84,21 @@ bot.startPolling();
 function errMsgHandler(ctx, err) {
     let chatId = ctx.message.chat.id;
     if (err) {
-        ctx.reply(messages[ctx.state.lang].msg.errmsg
+        ctx.reply(messages[langSession[chatId]].msg.errmsg
             .replace('%errcode%', err.code)
             .replace('%errbody%', err.response.body));
     } else {
-        ctx.reply(messages[ctx.state.lang].msg.error);
+        ctx.reply(messages[langSession[chatId]].msg.error);
     }
     return cleanup(chatId);
 }
 function newPackHandler (ctx) {
     let chatId = ctx.message.chat.id;
     if (ramdb[chatId] && ramdb[chatId].islocked) {
-        return ctx.reply(messages[ctx.state.lang].msg.tasklocked);
+        return ctx.reply(messages[langSession[chatId]].msg.tasklocked);
     }
     if (ramdb[chatId] && ramdb[chatId].files.length > 0) {
-        return ctx.reply(messages[ctx.state.lang].msg.taskexist);
+        return ctx.reply(messages[langSession[chatId]].msg.taskexist);
     }
     ramdb[chatId] = {
         start: ctx.message.date,
@@ -107,7 +108,7 @@ function newPackHandler (ctx) {
         islocked: false
     };
     logger(chatId, 'info', 'Started a new pack task.');
-    return ctx.reply(messages[ctx.state.lang].msg.newpack.replace('%max%', config.maximages));
+    return ctx.reply(messages[langSession[chatId]].msg.newpack.replace('%max%', config.maximages));
 }
 
 function finishHandler (ctx, imopts) {
@@ -142,7 +143,7 @@ function finishHandler (ctx, imopts) {
             if (err) {
                 errMsgHandler(ctx, err);
             }
-            ctx.reply(messages[ctx.state.lang].msg.sending);
+            ctx.reply(messages[langSession[chatId]].msg.sending);
             ctx.telegram.sendDocument(ctx.from.id, {
                 source: res[2],
                 filename: 'stickers_' + chatId + '.zip'
@@ -158,12 +159,12 @@ function finishHandler (ctx, imopts) {
 function cancellationHandler (ctx) {
     let chatId = ctx.message.chat.id;
     if (!ramdb[chatId]) {
-        return ctx.reply(messages[ctx.state.lang].msg.notask);
+        return ctx.reply(messages[langSession[chatId]].msg.notask);
     }
     delete ramdb[chatId];
     cleanup(chatId);
     logger(chatId, 'info', 'Task Cancelled.');
-    return ctx.reply(messages[ctx.state.lang].msg.taskcancelled);
+    return ctx.reply(messages[langSession[chatId]].msg.taskcancelled);
 }
 
 function generalMsgHandler (ctx) {
@@ -186,8 +187,8 @@ function generalMsgHandler (ctx) {
         }
     } else {
         ctx.reply((ramdb[chatId] && ramdb[chatId].islocked) ?
-            messages[ctx.state.lang].msg.tasklocked :
-            messages[ctx.state.lang].msg.start);
+            messages[langSession[chatId]].msg.tasklocked :
+            messages[langSession[chatId]].msg.start);
     }
 }
 
@@ -195,11 +196,11 @@ function i18nHandler (ctx) {
     let chatId = ctx.message.chat.id,
         chosen_lang = ctx.state.command.args.replace(/\s+/g, ''); // strip spaces
     if (config.available_lang.hasOwnProperty(chosen_lang)) {
-        ctx.state.lang = chosen_lang;
+        langSession[ctx.message.chat.id] = chosen_lang;
         logger(chatId, 'info', 'Changing language to: ' + chosen_lang);
-        return ctx.reply(messages[ctx.state.lang].msg.language_change)
+        return ctx.reply(messages[langSession[chatId]].msg.language_change)
     }
-    let message = messages[ctx.state.lang].msg.language_available,
+    let message = messages[langSession[chatId]].msg.language_available,
         languages_names = '';
     for (let k in config.available_lang){
         if (config.available_lang.hasOwnProperty(k)) {
@@ -212,7 +213,7 @@ function i18nHandler (ctx) {
 function downloadHanlder (ctx, fpath, callback) {
     let chatId = ctx.message.chat.id;
     logger(chatId, 'info', 'Downloading files...');
-    ctx.reply(messages[ctx.state.lang].msg.downloading);
+    ctx.reply(messages[langSession[chatId]].msg.downloading);
     async.eachSeries(ramdb[chatId].files, function (fileId, cb) {
         bot.telegram.getFileLink(fileId)
             .then(function(url) {
@@ -242,7 +243,7 @@ function convertHandler (ctx, fpath, imopts, callback) {
     let width = imopts.width;
     let format = imopts.format;
     logger(chatId, 'info', 'Converting images...');
-    ctx.reply(messages[ctx.state.lang].msg.converting);
+    ctx.reply(messages[langSession[chatId]].msg.converting);
     async.eachSeries(ramdb[chatId].srcimg, function (src, cb) {
         let imarg = [src];
         let destimg = path.resolve(fpath.imgpath + '/' + path.basename(src, 'webp') + 'jpg');
@@ -268,7 +269,7 @@ function convertHandler (ctx, fpath, imopts, callback) {
 
 function zipHandler (ctx, callback) {
     let chatId = ctx.message.chat.id;
-    ctx.reply(messages[ctx.state.lang].msg.packaging);
+    ctx.reply(messages[langSession[chatId]].msg.packaging);
     logger(chatId, 'info', 'Adding files to ZIP file...');
     let zip = new JSZip();
     ramdb[chatId].srcimg.forEach(function (src) {
@@ -295,11 +296,11 @@ function zipHandler (ctx, callback) {
 
 function stickerSetHandler (ctx, setName) {
     let chatId = ctx.message.chat.id;
-    ctx.reply(messages[ctx.state.lang].msg.get_set_info);
+    ctx.reply(messages[langSession[chatId]].msg.get_set_info);
     bot.telegram.getStickerSet(setName)
         .then(function (set) {
             if (ramdb[chatId].files.length + set.stickers.length >= config.maximages) {
-                return ctx.reply(messages[ctx.state.lang].msg.taskfull);
+                return ctx.reply(messages[langSession[chatId]].msg.taskfull);
             }
             logger(chatId, 'info', 'Adding Sticker Set: ' + setName);
             addSet(ctx, set);
@@ -309,16 +310,16 @@ function stickerSetHandler (ctx, setName) {
 function addSticker(ctx) {
     let chatId = ctx.message.chat.id;
     if (ramdb[chatId].files.indexOf(ctx.message.sticker.file_id) !== -1) {
-        return ctx.reply(messages[ctx.state.lang].msg.duplicated_sticker, Extra.inReplyTo(ctx.message.message_id));
+        return ctx.reply(messages[langSession[chatId]].msg.duplicated_sticker, Extra.inReplyTo(ctx.message.message_id));
     }
     if (ramdb[chatId].files.length >= config.maximages) {
-        return ctx.reply(messages[ctx.state.lang].msg.taskfull);
+        return ctx.reply(messages[langSession[chatId]].msg.taskfull);
     }
     ramdb[chatId].files.push(ctx.message.sticker.file_id);
     let remain = config.maximages - ramdb[chatId].files.length;
     ctx.reply(remain === 0 ?
-        messages[ctx.state.lang].msg.taskfull :
-        messages[ctx.state.lang].msg.saved.replace('%remain%', remain));
+        messages[langSession[chatId]].msg.taskfull :
+        messages[langSession[chatId]].msg.saved.replace('%remain%', remain));
 }
 
 function addSet (ctx, set) {
@@ -329,7 +330,7 @@ function addSet (ctx, set) {
             ramdb[chatId].files.push(s.file_id);
         }
     });
-    ctx.reply(messages[ctx.state.lang].msg.set_added_count
+    ctx.reply(messages[langSession[chatId]].msg.set_added_count
         .replace('%sticker_count%', ramdb[chatId].files.length - originCount));
 }
 
