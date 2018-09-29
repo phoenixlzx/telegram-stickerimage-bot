@@ -50,6 +50,7 @@ bot.command('lang', function (ctx) {
 });
 
 bot.command('newpack', function (ctx) {
+    let chatId = ctx.message.chat.id;
     newPackHandler(ctx, function (err) {
         if (err === 'locked') {
             return ctx.reply(messages[langSession[chatId]].msg.tasklocked);
