@@ -151,14 +151,16 @@ function finishHandler (ctx, imopts) {
                 errMsgHandler(ctx, err);
             }
             ctx.reply(messages[langSession[chatId]].msg.sending);
+            logger(chatId, 'info', 'Sending zip file...');
             ctx.telegram.sendDocument(ctx.from.id, {
                 source: res[2],
                 filename: 'stickers_' + chatId + '.zip'
-            }).catch(function(err){ errMsgHandler(ctx, err) });
-
-            logger(chatId, 'info', 'Sending zip file...');
-            cleanup(chatId);
-            logger(chatId, 'info', 'Task finished.');
+            })
+                .then(function () {
+                    cleanup(chatId);
+                    logger(chatId, 'info', 'Task finished.');
+                })
+                .catch(function(err){ errMsgHandler(ctx, err) });
         }
     );
 }
@@ -308,6 +310,15 @@ function stickerSetHandler (ctx, setName) {
 function directHandler (ctx) {
     let chatId = ctx.message.chat.id;
     newPackHandler(ctx, function () {
+        ramdb[chatId].islocked = true;
+        let fpath = {
+            packpath: config.file_storage + '/' + chatId
+        };
+        fpath['srcpath'] = fpath.packpath + '/src/';
+        fpath['imgpath'] = fpath.packpath + '/img/';
+        fs.mkdirpSync(path.resolve(fpath.packpath));
+        fs.mkdirpSync(path.resolve(fpath.srcpath));
+        fs.mkdirpSync(path.resolve(fpath.imgpath));
         logger(chatId, 'info', 'Started direct image task.');
         resolveFile(ctx, ctx.message.sticker.file_id, ctx.message.message_id, function (err, url) {
             if (err) {
@@ -328,10 +339,12 @@ function directHandler (ctx) {
                             Extra.inReplyTo(inReplyTo)
                         );
                     }
-                    ctx.replyWithDocument(
-                        fs.readFileSync(png),
-                        Extra.inReplyTo(inReplyTo)
-                    );
+                    ctx.replyWithDocument({
+                        source: fs.readFileSync(png)
+                    }, Extra.inReplyTo(inReplyTo))
+                        .then(function () {
+                            cleanup(chatId);
+                        });
                 });
             });
         });
