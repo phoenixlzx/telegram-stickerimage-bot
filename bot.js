@@ -309,6 +309,7 @@ function stickerSetHandler (ctx, setName) {
 
 function directHandler (ctx) {
     let chatId = ctx.message.chat.id;
+    let messageId = ctx.message.message_id;
     newPackHandler(ctx, function () {
         ramdb[chatId].islocked = true;
         let fpath = {
@@ -320,7 +321,7 @@ function directHandler (ctx) {
         fs.mkdirpSync(path.resolve(fpath.srcpath));
         fs.mkdirpSync(path.resolve(fpath.imgpath));
         logger(chatId, 'info', 'Started direct image task.');
-        resolveFile(ctx, ctx.message.sticker.file_id, ctx.message.message_id, function (err, url) {
+        resolveFile(ctx, ctx.message.sticker.file_id, messageId, function (err, url) {
             if (err) {
                 return;
             }
@@ -329,19 +330,19 @@ function directHandler (ctx) {
                 if (err) {
                     return ctx.reply(
                         messages[langSession[chatId]].msg.download_error,
-                        Extra.inReplyTo(inReplyTo)
+                        Extra.inReplyTo(messageId)
                     );
                 }
                 convert(ctx, destFile, fpath, {format: 'png'}, function (err, png) {
                     if (err) {
                         return ctx.reply(
                             messages[langSession[chatId]].msg.convert_error,
-                            Extra.inReplyTo(inReplyTo)
+                            Extra.inReplyTo(messageId)
                         );
                     }
                     ctx.replyWithDocument({
                         source: fs.readFileSync(png)
-                    }, Extra.inReplyTo(inReplyTo))
+                    }, Extra.inReplyTo(messageId))
                         .then(function () {
                             cleanup(chatId);
                         });
