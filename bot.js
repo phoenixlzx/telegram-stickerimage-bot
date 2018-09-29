@@ -323,11 +323,12 @@ function directHandler (ctx) {
         logger(chatId, 'info', 'Started direct image task.');
         resolveFile(ctx, ctx.message.sticker.file_id, messageId, function (err, url) {
             if (err) {
-                return;
+                return cleanup(chatId);
             }
             let destFile = fpath.srcpath + path.basename(url);
             download(ctx, url, destFile, function (err) {
                 if (err) {
+                    cleanup(chatId);
                     return ctx.reply(
                         messages[langSession[chatId]].msg.download_error,
                         Extra.inReplyTo(messageId)
@@ -335,6 +336,7 @@ function directHandler (ctx) {
                 }
                 convert(ctx, destFile, fpath, {format: 'png'}, function (err, png) {
                     if (err) {
+                        cleanup(chatId);
                         return ctx.reply(
                             messages[langSession[chatId]].msg.convert_error,
                             Extra.inReplyTo(messageId)
