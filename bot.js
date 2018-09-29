@@ -51,15 +51,14 @@ bot.command('lang', function (ctx) {
 
 bot.command('newpack', function (ctx) {
     let chatId = ctx.message.chat.id;
+    if (ramdb[chatId] && ramdb[chatId].islocked) {
+        return ctx.reply(messages[langSession[chatId]].msg.tasklocked);
+    }
+    if (ramdb[chatId] && ramdb[chatId].files.length > 0) {
+        return ctx.reply(messages[langSession[chatId]].msg.taskexist);
+    }
     newPackHandler(ctx, function (err) {
-        if (err === 'locked') {
-            return ctx.reply(messages[langSession[chatId]].msg.tasklocked);
-        } else if (err === 'exist') {
-            return ctx.reply(messages[langSession[chatId]].msg.taskexist);
-        } else {
-            logger(chatId, 'info', 'Started a new pack task.');
-            return ctx.reply(messages[langSession[chatId]].msg.newpack.replace('%max%', config.maximages));
-        }
+        return ctx.reply(messages[langSession[chatId]].msg.newpack.replace('%max%', config.maximages));
     });
 });
 
@@ -105,12 +104,7 @@ function errMsgHandler(ctx, err) {
 
 function newPackHandler (ctx, callback) {
     let chatId = ctx.message.chat.id;
-    if (ramdb[chatId] && ramdb[chatId].islocked) {
-        return callback('locked');
-    }
-    if (ramdb[chatId] && ramdb[chatId].files.length > 0) {
-        return callback('exist');
-    }
+    logger(chatId, 'info', 'Started a new pack task.');
     ramdb[chatId] = {
         start: ctx.message.date,
         files: [],
@@ -135,16 +129,19 @@ function finishHandler (ctx, imopts) {
     fs.mkdirpSync(path.resolve(fpath.imgpath));
     async.series([
             function (cb) {
+                ctx.reply(messages[langSession[chatId]].msg.downloading);
                 downloadHanlder(ctx, fpath, function (err) {
                     cb(err);
                 });
             },
             function (cb) {
+                ctx.reply(messages[langSession[chatId]].msg.converting);
                 convertHandler(ctx, fpath, imopts, function (err) {
                     cb(err);
                 })
             },
             function (cb) {
+                ctx.reply(messages[langSession[chatId]].msg.packaging);
                 zipHandler(ctx, function (err, zip) {
                     cb(err, zip);
                 });
@@ -195,6 +192,8 @@ function generalMsgHandler (ctx) {
                 }
             });
         }
+    } else if (!ramdb[chatId] && ctx.message.sticker) {
+        directHandler(ctx);
     } else {
         ctx.reply((ramdb[chatId] && ramdb[chatId].islocked) ?
             messages[langSession[chatId]].msg.tasklocked :
@@ -223,9 +222,8 @@ function i18nHandler (ctx) {
 function downloadHanlder (ctx, fpath, callback) {
     let chatId = ctx.message.chat.id;
     logger(chatId, 'info', 'Downloading files...');
-    ctx.reply(messages[langSession[chatId]].msg.downloading);
     async.eachSeries(ramdb[chatId].files, function (fileId, cb) {
-        resolveFile(ctx, fileId, function (err, url) {
+        resolveFile(ctx, fileId, null, function (err, url) {
             if (url) {
                 let destFile = fpath.srcpath + path.basename(url);
                 download(ctx, url, destFile, function (err) {
@@ -251,7 +249,6 @@ function downloadHanlder (ctx, fpath, callback) {
 function convertHandler (ctx, fpath, imopts, callback) {
     let chatId = ctx.message.chat.id;
     logger(chatId, 'info', 'Converting images...');
-    ctx.reply(messages[langSession[chatId]].msg.converting);
     async.eachSeries(ramdb[chatId].srcimg, function (src, cb) {
         convert(ctx, src, fpath, {
             'width': imopts.width,
@@ -267,7 +264,6 @@ function convertHandler (ctx, fpath, imopts, callback) {
 
 function zipHandler (ctx, callback) {
     let chatId = ctx.message.chat.id;
-    ctx.reply(messages[langSession[chatId]].msg.packaging);
     logger(chatId, 'info', 'Adding files to ZIP file...');
     let zip = new JSZip();
     ramdb[chatId].srcimg.forEach(function (src) {
@@ -309,6 +305,39 @@ function stickerSetHandler (ctx, setName) {
         });
 }
 
+function directHandler (ctx) {
+    let chatId = ctx.message.chat.id;
+    newPackHandler(ctx, function () {
+        logger(chatId, 'info', 'Started direct image task.');
+        resolveFile(ctx, ctx.message.sticker.file_id, ctx.message.message_id, function (err, url) {
+            if (err) {
+                return;
+            }
+            let destFile = fpath.srcpath + path.basename(url);
+            download(ctx, url, destFile, function (err) {
+                if (err) {
+                    return ctx.reply(
+                        messages[langSession[chatId]].msg.download_error,
+                        Extra.inReplyTo(inReplyTo)
+                    );
+                }
+                convert(ctx, destFile, fpath, {format: 'png'}, function (err, png) {
+                    if (err) {
+                        return ctx.reply(
+                            messages[langSession[chatId]].msg.convert_error,
+                            Extra.inReplyTo(inReplyTo)
+                        );
+                    }
+                    ctx.replyWithDocument(
+                        fs.readFileSync(png),
+                        Extra.inReplyTo(inReplyTo)
+                    );
+                });
+            });
+        });
+    });
+}
+
 function addSticker(ctx) {
     let chatId = ctx.message.chat.id;
     if (ramdb[chatId].files.indexOf(ctx.message.sticker.file_id) !== -1) {
@@ -336,14 +365,16 @@ function addSet (ctx, set) {
         .replace('%sticker_count%', ramdb[chatId].files.length - originCount));
 }
 
-function resolveFile (ctx, fileId, callback) {
+function resolveFile (ctx, fileId, inReplyTo, callback) {
     let chatId = ctx.message.chat.id;
     bot.telegram.getFileLink(fileId)
         .then(function(url) {
             callback(null, url);
         })
         .catch(function (err) {
-            ctx.reply(messages[langSession[chatId]].msg.err_get_filelink.replace('%fileId%', fileId));
+            ctx.reply(
+                messages[langSession[chatId]].msg.err_get_filelink.replace('%fileId%', fileId),
+                inReplyTo ? Extra.inReplyTo(inReplyTo) : null);
             logger(chatId, 'error', 'Get File Link for ' + fileId + ': ' + err);
             callback(err, null);
         }); // no more finally(...)

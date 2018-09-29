@@ -21,7 +21,9 @@
     "get_set_info": "Getting Sticker Set information, please wait...",
     "set_added_count": "Added %sticker_count% sticker(s) from sticker set(s).",
     "err_get_filelink": "Error when trying to get file link for %fileId%. Skipping...",
-    "invalid_set": "Error when trying to get information for %setName%."
+    "invalid_set": "Error when trying to get information for %setName%.",
+    "convert_error": "Error when converting image.",
+    "download_error": "Error when downloading image."
   },
   "app": {
     "storagepathnotexist": "Storage path not exist, creating."

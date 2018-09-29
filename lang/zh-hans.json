@@ -21,7 +21,9 @@
     "get_set_info": "获取表情包信息中，请稍等...",
     "set_added_count": "已从表情包添加 %sticker_count% 个表情。",
     "err_get_filelink": "获取文件 %fileId% 的地址时出错，跳过...",
-    "invalid_set": "获取表情包 %setName% 信息时出错。"
+    "invalid_set": "获取表情包 %setName% 信息时出错。",
+    "convert_error": "转换格式时出错。",
+    "download_error": "下载图片时出错。"
   },
   "app": {
     "storagepathnotexist": "储存路径不存在，创建中……"
