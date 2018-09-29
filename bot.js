@@ -341,7 +341,8 @@ function directHandler (ctx) {
                         );
                     }
                     ctx.replyWithDocument({
-                        source: fs.readFileSync(png)
+                        source: fs.readFileSync(png),
+                        filename: path.basename(png)
                     }, Extra.inReplyTo(messageId))
                         .then(function () {
                             cleanup(chatId);
