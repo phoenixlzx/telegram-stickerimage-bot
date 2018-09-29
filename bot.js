@@ -26,7 +26,7 @@ let ramdb = {};
 let langSession = {};
 
 bot.use(function (ctx, next) {
-    if (!langSession[ctx.message.chat.id]) {
+    if (ctx.message && !langSession[ctx.message.chat.id]) {
         langSession[ctx.message.chat.id] = config.default_lang;
     }
     return next();
@@ -50,7 +50,16 @@ bot.command('lang', function (ctx) {
 });
 
 bot.command('newpack', function (ctx) {
-    newPackHandler(ctx);
+    newPackHandler(ctx, function (err) {
+        if (err === 'locked') {
+            return ctx.reply(messages[langSession[chatId]].msg.tasklocked);
+        } else if (err === 'exist') {
+            return ctx.reply(messages[langSession[chatId]].msg.taskexist);
+        } else {
+            logger(chatId, 'info', 'Started a new pack task.');
+            return ctx.reply(messages[langSession[chatId]].msg.newpack.replace('%max%', config.maximages));
+        }
+    });
 });
 
 bot.command('finish', function (ctx) {
@@ -93,13 +102,13 @@ function errMsgHandler(ctx, err) {
     return cleanup(chatId);
 }
 
-function newPackHandler (ctx) {
+function newPackHandler (ctx, callback) {
     let chatId = ctx.message.chat.id;
     if (ramdb[chatId] && ramdb[chatId].islocked) {
-        return ctx.reply(messages[langSession[chatId]].msg.tasklocked);
+        return callback('locked');
     }
     if (ramdb[chatId] && ramdb[chatId].files.length > 0) {
-        return ctx.reply(messages[langSession[chatId]].msg.taskexist);
+        return callback('exist');
     }
     ramdb[chatId] = {
         start: ctx.message.date,
@@ -108,8 +117,7 @@ function newPackHandler (ctx) {
         destimg: [],
         islocked: false
     };
-    logger(chatId, 'info', 'Started a new pack task.');
-    return ctx.reply(messages[langSession[chatId]].msg.newpack.replace('%max%', config.maximages));
+    callback();
 }
 
 function finishHandler (ctx, imopts) {
@@ -216,14 +224,11 @@ function downloadHanlder (ctx, fpath, callback) {
     logger(chatId, 'info', 'Downloading files...');
     ctx.reply(messages[langSession[chatId]].msg.downloading);
     async.eachSeries(ramdb[chatId].files, function (fileId, cb) {
-        bot.telegram.getFileLink(fileId)
-            .then(function(url) {
+        resolveFile(ctx, fileId, function (err, url) {
+            if (url) {
                 let destFile = fpath.srcpath + path.basename(url);
-                download(url, destFile, function (err) {
-                    if (err) {
-                        logger(chatId, 'error', 'Downloading file [' + fileId + '] from ' + url);
-                        return cb(err);
-                    }
+                download(ctx, url, destFile, function (err) {
+                    if (err) return cb();
                     if (destFile && destFile.indexOf('.') === -1) {
                         let new_dest = destFile + '.webp';
                         fs.renameSync(destFile, new_dest);
@@ -233,12 +238,10 @@ function downloadHanlder (ctx, fpath, callback) {
                     ramdb[chatId].srcimg.push(destFile);
                     cb();
                 });
-            })
-            .catch(function (err) {
-                ctx.reply(messages[langSession[chatId]].msg.err_get_filelink.replace('%fileId%', fileId));
-                logger(chatId, 'error', 'Get File Link for ' + fileId + ': ' + err);
-                cb();
-            }); // no more finally(...)
+            } else {
+                cb(); // skip link error files
+            }
+        })
     }, function (err) {
         callback(err);
     });
@@ -246,26 +249,14 @@ function downloadHanlder (ctx, fpath, callback) {
 
 function convertHandler (ctx, fpath, imopts, callback) {
     let chatId = ctx.message.chat.id;
-    let width = imopts.width;
-    let format = imopts.format;
     logger(chatId, 'info', 'Converting images...');
     ctx.reply(messages[langSession[chatId]].msg.converting);
     async.eachSeries(ramdb[chatId].srcimg, function (src, cb) {
-        let imarg = [src];
-        let destimg = path.resolve(fpath.imgpath + '/' + path.basename(src, 'webp') + 'jpg');
-        if (width && width < 512) {
-            imarg.push('-resize', width + 'x' + width);
-        }
-        if (format === 'png') {
-            destimg = path.resolve(fpath.imgpath + '/' + path.basename(src, 'webp') + 'png');
-            imarg.push(destimg);
-        } else {
-            // use -flatten to add white background to jpg files
-            imarg.push('-flatten', destimg)
-        }
-        logger(chatId, 'info', 'Convert: ' + im.convert.path + ' ' + imarg.join(' '));
-        im.convert(imarg, function (err, stdout) {
-            ramdb[chatId].destimg.push(destimg);
+        convert(ctx, src, fpath, {
+            'width': imopts.width,
+            'format': imopts.format
+        }, function (err, dest) {
+            ramdb[chatId].destimg.push(dest);
             cb(err);
         });
     }, function(err) {
@@ -344,16 +335,54 @@ function addSet (ctx, set) {
         .replace('%sticker_count%', ramdb[chatId].files.length - originCount));
 }
 
-function download (url, dest, callback) {
+function resolveFile (ctx, fileId, callback) {
+    let chatId = ctx.message.chat.id;
+    bot.telegram.getFileLink(fileId)
+        .then(function(url) {
+            callback(null, url);
+        })
+        .catch(function (err) {
+            ctx.reply(messages[langSession[chatId]].msg.err_get_filelink.replace('%fileId%', fileId));
+            logger(chatId, 'error', 'Get File Link for ' + fileId + ': ' + err);
+            callback(err, null);
+        }); // no more finally(...)
+}
+
+function download (ctx, url, dest, callback) {
+    let chatId = ctx.message.chat.id;
     let file = fs.createWriteStream(dest);
     request.get(url)
         .pipe(file)
         .on('error', function (err) {
+            // Skip download error files #TODO notify user?
+            logger(chatId, 'error', 'Downloading file [' + fileId + '] from ' + url);
             fs.unlink(dest);
-            callback(err.message);
+            callback(err);
         });
     file.on('finish', function() {
         file.close(callback);
+    });
+}
+
+function convert (ctx, src, fpath, opts, callback) {
+    let chatId = ctx.message.chat.id;
+    let imarg = [src];
+    let width = opts['width'];
+    let format = opts['format'];
+    let destimg = path.resolve(fpath.imgpath + '/' + path.basename(src, 'webp') + 'jpg');
+    if (width && width < 512) {
+        imarg.push('-resize', width + 'x' + width);
+    }
+    if (format === 'png') {
+        destimg = path.resolve(fpath.imgpath + '/' + path.basename(src, 'webp') + 'png');
+        imarg.push(destimg);
+    } else {
+        // use -flatten to add white background to jpg files
+        imarg.push('-flatten', destimg)
+    }
+    logger(chatId, 'info', 'Convert: ' + im.convert.path + ' ' + imarg.join(' '));
+    im.convert(imarg, function (err) {
+        callback(err, destimg);
     });
 }
 
