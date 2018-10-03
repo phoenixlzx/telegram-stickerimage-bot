@@ -16,7 +16,7 @@
     "duplicated_sticker": "你向我發過這個表情了。",
     "error": "哦……發生了一點錯誤",
     "errmsg": "啊，發生了一個錯誤... \n\n%errcode%\n%errbody%\n\n請向 https://github.com/phoenixlzx/telegram-stickerimage-bot/issues 報告錯誤 (不過一般情況下這是Telegram方面的鍋)\n\n你可以用 /cancel 取消，然後用 /newpack 重新開始。",
-    "language_change": "你選擇了簡體中文。",
+    "language_change": "你選擇了正體中文。",
     "language_available": "可用的語言： %languages%\n\n用 /lang 加上語言代碼來切換語言。例如： /lang en",
     "get_set_info": "Getting Sticker Set information, please wait...",
     "set_added_count": "Added %sticker_count% from sticker set(s).",
