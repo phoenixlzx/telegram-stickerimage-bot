@@ -188,9 +188,10 @@ function generalMsgHandler (ctx) {
             ctx.message.entities.forEach(function (e) {
                 if (e.type === 'url') {
                     let url = ctx.message.text.slice(e.offset, e.offset + e.length);
-                    if (url.startsWith('https://t.me/addstickers/') &&
-                        url.length > 25)
-                    stickerSetHandler(ctx, path.basename(url));
+                    if ((url.startsWith('https://t.me/addstickers/') || url.startsWith('https://telegram.me/addstickers/')) &&
+                        url.length > 25) {
+                        stickerSetHandler(ctx, path.basename(url));
+                    }
                 }
             });
         }
