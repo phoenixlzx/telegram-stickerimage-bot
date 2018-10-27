@@ -23,7 +23,8 @@
     "err_get_filelink": "获取文件 %fileId% 的地址时出错，跳过...",
     "invalid_set": "获取表情包 %setName% 信息时出错。",
     "convert_error": "转换格式时出错。",
-    "download_error": "下载图片时出错。"
+    "download_error": "下载图片时出错。",
+    "direct_task_started": "处理贴纸中... \n\n  Tip: 尝试 /newpack 以：\n    - 导出多张贴纸\n    - 导出整个贴纸包"
   },
   "app": {
     "storagepathnotexist": "储存路径不存在，创建中……"

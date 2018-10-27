@@ -322,37 +322,41 @@ function directHandler (ctx) {
         fs.mkdirpSync(path.resolve(fpath.srcpath));
         fs.mkdirpSync(path.resolve(fpath.imgpath));
         logger(chatId, 'info', 'Started direct image task.');
-        resolveFile(ctx, ctx.message.sticker.file_id, messageId, function (err, url) {
-            if (err) {
-                return cleanup(chatId);
-            }
-            let destFile = fpath.srcpath + path.basename(url);
-            download(ctx, url, destFile, function (err) {
-                if (err) {
-                    cleanup(chatId);
-                    return ctx.reply(
-                        messages[langSession[chatId]].msg.download_error,
-                        Extra.inReplyTo(messageId)
-                    );
-                }
-                convert(ctx, destFile, fpath, {format: 'png'}, function (err, png) {
+        ctx.reply(messages[langSession[chatId]].msg.direct_task_started)
+            .then(function (pendingMsg) {
+                resolveFile(ctx, ctx.message.sticker.file_id, messageId, function (err, url) {
                     if (err) {
-                        cleanup(chatId);
-                        return ctx.reply(
-                            messages[langSession[chatId]].msg.convert_error,
-                            Extra.inReplyTo(messageId)
-                        );
+                        return cleanup(chatId);
                     }
-                    ctx.replyWithDocument({
-                        source: fs.readFileSync(png),
-                        filename: path.basename(png)
-                    }, Extra.inReplyTo(messageId))
-                        .then(function () {
+                    let destFile = fpath.srcpath + path.basename(url);
+                    download(ctx, url, destFile, function (err) {
+                        if (err) {
                             cleanup(chatId);
+                            return ctx.reply(
+                                messages[langSession[chatId]].msg.download_error,
+                                Extra.inReplyTo(messageId)
+                            );
+                        }
+                        convert(ctx, destFile, fpath, {format: 'png'}, function (err, png) {
+                            if (err) {
+                                cleanup(chatId);
+                                return ctx.reply(
+                                    messages[langSession[chatId]].msg.convert_error,
+                                    Extra.inReplyTo(messageId)
+                                );
+                            }
+                            ctx.deleteMessage(chatId, pendingMsg.message_id);
+                            ctx.replyWithDocument({
+                                source: fs.readFileSync(png),
+                                filename: path.basename(png)
+                            }, Extra.inReplyTo(messageId))
+                                .then(function () {
+                                    cleanup(chatId);
+                                });
                         });
+                    });
                 });
             });
-        });
     });
 }
 

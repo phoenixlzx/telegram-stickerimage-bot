@@ -23,7 +23,8 @@
     "err_get_filelink": "Error when trying to get file link for %fileId%. Skipping...",
     "invalid_set": "Error when trying to get information for %setName%.",
     "convert_error": "Error when converting image.",
-    "download_error": "Error when downloading image."
+    "download_error": "Error when downloading image.",
+    "direct_task_started": "Processing your sticker... \n\n  Tip: Use /newpack if you want to:\n    - Download multiple stickers at once,\n    - Export a full set of stickers"
   },
   "app": {
     "storagepathnotexist": "Storage path not exist, creating."
