@@ -65,7 +65,7 @@ bot.command('newpack', function (ctx) {
 bot.command('finish', function (ctx) {
     let chatId = ctx.message.chat.id;
     if (ramdb[chatId] && ramdb[chatId].islocked) {
-        return bot.sendMessage(chatId, messages[langSession[chatId]].msg.tasklocked);
+        return ctx.reply(messages[langSession[chatId]].msg.tasklocked);
     }
     let r = new RegExp(/\s?(png)?\s?(\d+)?/i);
     let match = r.exec(ctx.state.command.args);
