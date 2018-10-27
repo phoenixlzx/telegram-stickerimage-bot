@@ -345,7 +345,7 @@ function directHandler (ctx) {
                                     Extra.inReplyTo(messageId)
                                 );
                             }
-                            ctx.deleteMessage(chatId, pendingMsg.message_id);
+                            deleteMsg(ctx, pendingMsg);
                             ctx.replyWithDocument({
                                 source: fs.readFileSync(png),
                                 filename: path.basename(png)
@@ -444,6 +444,11 @@ function cleanup (id) {
     logger(id, 'info', 'Cleaning up...');
     delete ramdb[id];
     fs.removeSync(path.resolve(config.file_storage + '/' + id));
+}
+
+function deleteMsg (ctx, msg) {
+    let chatId = ctx.message.chat.id;
+    ctx.deleteMessage(chatId, msg.message_id + '');
 }
 
 function loadLang () {
