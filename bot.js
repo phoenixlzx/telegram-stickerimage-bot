@@ -345,12 +345,12 @@ function directHandler (ctx) {
                                     Extra.inReplyTo(messageId)
                                 );
                             }
-                            ctx.deleteMessage(pendingMsg.message_id);
                             ctx.replyWithDocument({
                                 source: fs.readFileSync(png),
                                 filename: path.basename(png)
                             }, Extra.inReplyTo(messageId))
                                 .then(function () {
+                                    ctx.deleteMessage(pendingMsg.message_id);
                                     cleanup(chatId);
                                 });
                         });
