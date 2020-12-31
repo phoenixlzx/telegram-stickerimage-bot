@@ -92,7 +92,7 @@ bot.startPolling();
 
 function errMsgHandler(ctx, err) {
     let chatId = ctx.message.chat.id;
-    if (err) {
+    if (err && err.response) {
         ctx.reply(messages[langSession[chatId]].msg.errmsg
             .replace('%errcode%', err.code)
             .replace('%errbody%', err.response.body));
@@ -409,8 +409,12 @@ function download (ctx, url, dest, callback) {
         .pipe(file)
         .on('error', function (err) {
             // Skip download error files #TODO notify user?
-            logger(chatId, 'error', 'Downloading file [' + fileId + '] from ' + url);
-            fs.unlink(dest);
+            logger(chatId, 'error', 'Downloading file from ' + url);
+            fs.unlink(dest, function (err) {
+                if (err) {
+                    logger(chatId, 'error', 'Deleting file error ' + dest);
+                }
+            });
             callback(err);
         });
     file.on('finish', function() {
