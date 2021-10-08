@@ -1,0 +1,32 @@
+{
+  "msg": {
+    "start": "Olá!\nEu sou bot e permito-te converter stickers em imagens. Se me enviares:\n- Um link de stickers eu converto em .jpeg, comprimo e envio-te um .zip.\n- Um sticker eu converto diretamente para .jpeg.\n\nComandos disponíveis:\n\n- /newpack inicia a conversão de stickers\n- /finish para terminar a listagem de stickers e receber o .zip. Adicionalmente escreve 'png' se decides receber imagens com fundo transparente. Também podes indicar a dimensão das imagens, usando um numero entre 0 e 512.\n\nExemplos: '/finish 128' dá-te os stickers no formato .jpeg e com a dimensão de 128x128.\n'/finish png 160' converte os stickers no formato .png e dimensão 160x160.\n\n- /cancel permite-te cancelar o processo de conversão.\n\n- /lang permite-te trocar o idioma do bot.\n\nExemplos: '/lang' indica os idiomas disponíveis, '/lang de' altera o idioma do bot para Alemão.",
+    "newpack": "Iniciado novo processo de conversão. Podes-me enviar stickers ou links de stickers (até %max% stickers).",
+    "saved": "Sticker armazenado. Podes converter mais %remain% stickers. Envia-me mais stickers ou utiliza o comando /finish para receber o .zip. Qualquer outra mensagem revela a informação de ajuda.",
+    "downloading": "[1/4] Transferindo os stickers...",
+    "converting": "[2/4] Convertendo em imagens...",
+    "packaging": "[3/4] Comprimindo as imagens em .zip...",
+    "sending": "[4/4] Enviando o ficheiro .zip. O envio pode demorar algum tempo, por isso peço-te que aguardes algum tempo. Irei-te notificar quando o receberes.",
+    "nosticker": "Desculpa, mas não existem stickers na fila de conversão. No caso de teres enviado algum sticker, é possível que o bot tenha reiniciado. O comando /newpack permite-te começar um novo processo de conversão.",
+    "taskexist": "De momento já existe um processo de conversão ativo, por favor termina-o com o comando /finish. Qualquer outra mensagem revela a informação de ajuda.",
+    "tasklocked": "De momento o processo de conversão está em execução, por favor aguarde até que este termine.",
+    "taskfull": "A fila de conversão está cheia, utiliza o comando /finish para ordenar a conversão e receber o .zip. Qualquer outra mensagem revela a informação de ajuda.",
+    "taskcancelled": "O processo de conversão foi cancelado.",
+    "notask": "Não existe nenhum processo de conversão ativo. Se começaste um e não terminaste, é possível que o bot tenha reiniciado.",
+    "duplicated_sticker": "Já me enviaste este sticker.",
+    "error": "Oops! Um erro inesperado ocorreu.",
+    "errmsg": "O seguinte erro ocorreu: \n\n%errcode%\n%errbody%\n\nPor favor reporta o erro abrindo um issue no Github (https://github.com/phoenixlzx/telegram-stickerimage-bot/issues). (É possível que o erro tenha surgido por causa de um problema no Telegram)\n\nPodes utilizar os comandos /cancel e /newpack para reinicar o processo de conversão.",
+    "language_change": "Selecionaste o idioma Português.",
+    "language_available": "Idiomas disponíveis: %languages%\n\nEscreve /lang + o código da lingua do idioma para mudar o idioma do bot. Exemplo: /lang en",
+    "get_set_info": "Obtendo informação do conjunto de stickers, por favor aguarde...",
+    "set_added_count": "Foram adicionado(s) %sticker_count% sticker(s) do conjunto de stickers.",
+    "err_get_filelink": "Ocorreu um erro ao obter um link para o ficheiro %fileId%. Skipping...",
+    "invalid_set": "Ocorreu um erro ao obter informação do conjunto de stickers %setName%.",
+    "convert_error": "Ocorreu um erro ao converter um sticker em imagem.",
+    "download_error": "Ocorreu um erro ao transferir um sticker.",
+    "direct_task_started": "Convertendo o sticker em imagem... \n\n  Tip: Utiliza o comando /newpack se desejas:\n    - Converter vários stickers simultaneamente,\n    - Converter um conjunto completo de stickers."
+  },
+  "app": {
+    "storagepathnotexist": "Diretório de armazenamento temporário não existe, criando o mesmo."
+  }
+}
