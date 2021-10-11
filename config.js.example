@@ -11,6 +11,11 @@ module.exports = {
     // file storage path
     file_storage: './storage',
 
+    // recognized sticker sources
+    sticker_sources: [
+        'https://t.me/addstickers/',
+        'https://telegram.me/addstickers/'
+    ],
     // use language
     default_lang: 'en',
     available_lang: {
