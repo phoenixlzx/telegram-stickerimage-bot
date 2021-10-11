@@ -1,6 +1,6 @@
 {
   "msg": {
-    "start": "Hello!\nThis is StickerImage bot. You can:\n- send me some stickers and get a zip file of images.\n- or send me sticker directly to get PNG image.\n\nAvailable commands:\n\n- /newpack to start a new image pack\n- /finish to get compressed zip file, append 'png' if you want to get png images, blank for jpg. Width can be optionally specified at last (no more than 512, blank for 512).\n\nE.g., '/finish 128' will get jpg images resized at 128px in width, or '/finish png 160' for 160px width png files.\n\n- /cancel to cancel any task in your queue.\n\n- /lang Change the language.\n\nEg. '/lang' show available languages, '/lang de' change the language to german.",
+    "start": "Hello!\nThis is StickerImage bot. You can:\n- send me some stickers and get a zip file of images.\n- or send me sticker directly to get PNG image.\n\nAvailable commands:\n\n- /newpack to start a new image pack\n- /finish to get compressed zip file, append 'png' if you want to get png images, blank for jpg. Width can be optionally specified at last (no more than 512, blank for 512).\n\nE.g., '/finish 128' will get jpg images resized at 128px in width, or '/finish png 160' for 160px width png files.\n\n- /cancel to cancel any task in your queue.\n\n- /sources to display the supported sources for sticker set links.\n\n- /lang Change the language.\n\nEg. '/lang' show available languages, '/lang de' change the language to german.",
     "newpack": "OK now send me stickers or sticker set links (%max% max).",
     "saved": "Sticker file saved. Your current pack have %remain% file slots left. Send me more stickers to queue or use /finish to get the pack. Any other text to see help message.",
     "downloading": "[1/4] Downloading images...",
@@ -24,7 +24,9 @@
     "invalid_set": "Error when trying to get information for %setName%.",
     "convert_error": "Error when converting image.",
     "download_error": "Error when downloading image.",
-    "direct_task_started": "Processing your sticker... \n\n  Tip: Use /newpack if you want to:\n    - Download multiple stickers at once,\n    - Export a full set of stickers"
+    "direct_task_started": "Processing your sticker... \n\n  Tip: Use /newpack if you want to:\n    - Download multiple stickers at once,\n    - Export a full set of stickers",
+    "unsupported_sticker_source": "%source% is not a supported sticker source. Please refer to /sources command for the supported stickers sources.",
+    "supported_sticker_sources": "The following link URLs are supported sticker sources of the bot:\n\n%sources%\n\nAppend the sticker set identifier in one of these links, so that the bot can recognize it."
   },
   "app": {
     "storagepathnotexist": "Storage path not exist, creating."

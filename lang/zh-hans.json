@@ -24,7 +24,9 @@
     "invalid_set": "获取表情包 %setName% 信息时出错。",
     "convert_error": "转换格式时出错。",
     "download_error": "下载图片时出错。",
-    "direct_task_started": "处理贴纸中... \n\n  Tip: 尝试 /newpack 以：\n    - 导出多张贴纸\n    - 导出整个贴纸包"
+    "direct_task_started": "处理贴纸中... \n\n  Tip: 尝试 /newpack 以：\n    - 导出多张贴纸\n    - 导出整个贴纸包",
+    "unsupported_sticker_source": "%source% 不是受支持的贴纸来源。支持的贴图来源请参考 /sources 命令。",
+    "supported_sticker_sources": "以下链接 URL 是机器人支持的贴纸来源：\n\n%sources%\n\n在这些链接之一中附加贴纸集标识符，以便机器人可以识别它。"
   },
   "app": {
     "storagepathnotexist": "储存路径不存在，创建中……"
