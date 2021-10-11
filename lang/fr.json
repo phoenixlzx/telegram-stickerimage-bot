@@ -24,7 +24,9 @@
     "invalid_set": "Error when trying to get information for %setName%.",
     "convert_error": "Error when converting image.",
     "download_error": "Error when downloading image.",
-    "direct_task_started": "Processing your sticker... \n\n  Tip: Use /newpack if you want to:\n    - Download multiple stickers at once,\n    - Export a full set of stickers"
+    "direct_task_started": "Processing your sticker... \n\n  Tip: Use /newpack if you want to:\n    - Download multiple stickers at once,\n    - Export a full set of stickers",
+    "unsupported_sticker_source": "%source% n'est pas une source d'autocollant prise en charge. Veuillez vous référer à la commande /sources pour les sources d'autocollants prises en charge.",
+    "supported_sticker_sources": "Les URL de lien suivantes sont des sources d'autocollants prises en charge par le bot :\n\n%sources%\n\nAjoutez l'identifiant de l'ensemble d'autocollants dans l'un de ces liens, afin que le bot puisse le reconnaître."
   },
   "app": {
     "storagepathnotexist": "Le chemin d'accès pour le stockage n'existe pas, création."

@@ -14,7 +14,7 @@ const JSZip = require("jszip");
 const async = require('async');
 const request = require('request');
 
-const bot = new Telegraf(config.token, {username: config.username});
+const bot = new Telegraf(config.token, { username: config.username });
 
 bot.use(commandParts());
 im.convert.path = config.im_convert_path;
@@ -34,7 +34,7 @@ bot.use(function (ctx, next) {
 
 // check storage path
 let fspath = path.resolve(config.file_storage);
-fs.stat(fspath, function(err, stats) {
+fs.stat(fspath, function (err, stats) {
     if (err && err.code === 'ENOENT') {
         logger('INTERNAL', 'info', messages[config.default_lang].app.storagepathnotexist);
         fs.mkdirpSync(fspath);
@@ -80,6 +80,10 @@ bot.command('finish', function (ctx) {
     }
 });
 
+bot.command('sources', function (ctx) {
+    sourcesHandler(ctx);
+});
+
 bot.command('cancel', function (ctx) {
     cancellationHandler(ctx);
 });
@@ -102,7 +106,7 @@ function errMsgHandler(ctx, err) {
     return cleanup(chatId);
 }
 
-function newPackHandler (ctx, callback) {
+function newPackHandler(ctx, callback) {
     let chatId = ctx.message.chat.id;
     logger(chatId, 'info', 'Started a new pack task.');
     ramdb[chatId] = {
@@ -115,7 +119,7 @@ function newPackHandler (ctx, callback) {
     callback();
 }
 
-function finishHandler (ctx, imopts) {
+function finishHandler(ctx, imopts) {
     let chatId = ctx.message.chat.id;
     logger(chatId, 'info', 'Starting pack task...');
     ramdb[chatId].islocked = true;
@@ -128,24 +132,24 @@ function finishHandler (ctx, imopts) {
     fs.mkdirpSync(path.resolve(fpath.srcpath));
     fs.mkdirpSync(path.resolve(fpath.imgpath));
     async.series([
-            function (cb) {
-                ctx.reply(messages[langSession[chatId]].msg.downloading);
-                downloadHanlder(ctx, fpath, function (err) {
-                    cb(err);
-                });
-            },
-            function (cb) {
-                ctx.reply(messages[langSession[chatId]].msg.converting);
-                convertHandler(ctx, fpath, imopts, function (err) {
-                    cb(err);
-                })
-            },
-            function (cb) {
-                ctx.reply(messages[langSession[chatId]].msg.packaging);
-                zipHandler(ctx, function (err, zip) {
-                    cb(err, zip);
-                });
-            }],
+        function (cb) {
+            ctx.reply(messages[langSession[chatId]].msg.downloading);
+            downloadHanlder(ctx, fpath, function (err) {
+                cb(err);
+            });
+        },
+        function (cb) {
+            ctx.reply(messages[langSession[chatId]].msg.converting);
+            convertHandler(ctx, fpath, imopts, function (err) {
+                cb(err);
+            })
+        },
+        function (cb) {
+            ctx.reply(messages[langSession[chatId]].msg.packaging);
+            zipHandler(ctx, function (err, zip) {
+                cb(err, zip);
+            });
+        }],
         function (err, res) {
             if (err) {
                 errMsgHandler(ctx, err);
@@ -160,12 +164,12 @@ function finishHandler (ctx, imopts) {
                     cleanup(chatId);
                     logger(chatId, 'info', 'Task finished.');
                 })
-                .catch(function(err){ errMsgHandler(ctx, err) });
+                .catch(function (err) { errMsgHandler(ctx, err) });
         }
     );
 }
 
-function cancellationHandler (ctx) {
+function cancellationHandler(ctx) {
     let chatId = ctx.message.chat.id;
     if (!ramdb[chatId]) {
         return ctx.reply(messages[langSession[chatId]].msg.notask);
@@ -176,7 +180,14 @@ function cancellationHandler (ctx) {
     return ctx.reply(messages[langSession[chatId]].msg.taskcancelled);
 }
 
-function generalMsgHandler (ctx) {
+function sourcesHandler(ctx) {
+
+    let chatId = ctx.message.chat.id;
+
+    return ctx.reply(messages[langSession[chatId]].msg.supported_sticker_sources.replace('%sources%', config.sticker_sources.reduce((x, c) => `${x}\n${c}`)));
+}
+
+function generalMsgHandler(ctx) {
     let chatId = ctx.message.chat.id;
     if (ctx.chat.type !== 'private') return; // do not reply to group or channels ( unless mentioned? #TODO
     if (ramdb[chatId] && !ramdb[chatId].islocked) {
@@ -188,9 +199,11 @@ function generalMsgHandler (ctx) {
             ctx.message.entities.forEach(function (e) {
                 if (e.type === 'url') {
                     let url = ctx.message.text.slice(e.offset, e.offset + e.length);
-                    if ((url.startsWith('https://t.me/addstickers/') || url.startsWith('https://telegram.me/addstickers/')) &&
+                    if (config.sticker_sources.find((x) => url.startsWith(x)) &&
                         url.length > 25) {
                         stickerSetHandler(ctx, path.basename(url));
+                    } else {
+                        ctx.reply(messages[langSession[chatId]].msg.unsupported_sticker_source.replace('%source%', url));
                     }
                 }
             });
@@ -204,7 +217,7 @@ function generalMsgHandler (ctx) {
     }
 }
 
-function i18nHandler (ctx) {
+function i18nHandler(ctx) {
     let chatId = ctx.message.chat.id,
         chosen_lang = ctx.state.command.args.replace(/\s+/g, ''); // strip spaces
     if (config.available_lang.hasOwnProperty(chosen_lang)) {
@@ -214,7 +227,7 @@ function i18nHandler (ctx) {
     }
     let message = messages[langSession[chatId]].msg.language_available,
         languages_names = '';
-    for (let k in config.available_lang){
+    for (let k in config.available_lang) {
         if (config.available_lang.hasOwnProperty(k)) {
             languages_names += '\n' + '[' + k + '] ' + config.available_lang[k].join(' / ')
         }
@@ -222,7 +235,7 @@ function i18nHandler (ctx) {
     return ctx.reply(message.replace('%languages%', languages_names));
 }
 
-function downloadHanlder (ctx, fpath, callback) {
+function downloadHanlder(ctx, fpath, callback) {
     let chatId = ctx.message.chat.id;
     logger(chatId, 'info', 'Downloading files...');
     async.eachSeries(ramdb[chatId].files, function (fileId, cb) {
@@ -249,7 +262,7 @@ function downloadHanlder (ctx, fpath, callback) {
     });
 }
 
-function convertHandler (ctx, fpath, imopts, callback) {
+function convertHandler(ctx, fpath, imopts, callback) {
     let chatId = ctx.message.chat.id;
     logger(chatId, 'info', 'Converting images...');
     async.eachSeries(ramdb[chatId].srcimg, function (src, cb) {
@@ -260,12 +273,12 @@ function convertHandler (ctx, fpath, imopts, callback) {
             ramdb[chatId].destimg.push(dest);
             cb(err);
         });
-    }, function(err) {
+    }, function (err) {
         callback(err);
     });
 }
 
-function zipHandler (ctx, callback) {
+function zipHandler(ctx, callback) {
     let chatId = ctx.message.chat.id;
     logger(chatId, 'info', 'Adding files to ZIP file...');
     let zip = new JSZip();
@@ -291,7 +304,7 @@ function zipHandler (ctx, callback) {
         });
 }
 
-function stickerSetHandler (ctx, setName) {
+function stickerSetHandler(ctx, setName) {
     let chatId = ctx.message.chat.id;
     ctx.reply(messages[langSession[chatId]].msg.get_set_info);
     bot.telegram.getStickerSet(setName)
@@ -308,7 +321,7 @@ function stickerSetHandler (ctx, setName) {
         });
 }
 
-function directHandler (ctx) {
+function directHandler(ctx) {
     let chatId = ctx.message.chat.id;
     let messageId = ctx.message.message_id;
     newPackHandler(ctx, function () {
@@ -337,7 +350,7 @@ function directHandler (ctx) {
                                 Extra.inReplyTo(messageId)
                             );
                         }
-                        convert(ctx, destFile, fpath, {format: 'png'}, function (err, png) {
+                        convert(ctx, destFile, fpath, { format: 'png' }, function (err, png) {
                             if (err) {
                                 cleanup(chatId);
                                 return ctx.reply(
@@ -375,7 +388,7 @@ function addSticker(ctx) {
         messages[langSession[chatId]].msg.saved.replace('%remain%', remain));
 }
 
-function addSet (ctx, set) {
+function addSet(ctx, set) {
     let chatId = ctx.message.chat.id;
     let originCount = ramdb[chatId].files.length;
     set.stickers.forEach(function (s) {
@@ -387,10 +400,10 @@ function addSet (ctx, set) {
         .replace('%sticker_count%', ramdb[chatId].files.length - originCount));
 }
 
-function resolveFile (ctx, fileId, inReplyTo, callback) {
+function resolveFile(ctx, fileId, inReplyTo, callback) {
     let chatId = ctx.message.chat.id;
     bot.telegram.getFileLink(fileId)
-        .then(function(url) {
+        .then(function (url) {
             callback(null, url);
         })
         .catch(function (err) {
@@ -402,7 +415,7 @@ function resolveFile (ctx, fileId, inReplyTo, callback) {
         }); // no more finally(...)
 }
 
-function download (ctx, url, dest, callback) {
+function download(ctx, url, dest, callback) {
     let chatId = ctx.message.chat.id;
     let file = fs.createWriteStream(dest);
     request.get(url)
@@ -417,12 +430,12 @@ function download (ctx, url, dest, callback) {
             });
             callback(err);
         });
-    file.on('finish', function() {
+    file.on('finish', function () {
         file.close(callback);
     });
 }
 
-function convert (ctx, src, fpath, opts, callback) {
+function convert(ctx, src, fpath, opts, callback) {
     let chatId = ctx.message.chat.id;
     let imarg = [src];
     let width = opts['width'];
@@ -444,14 +457,14 @@ function convert (ctx, src, fpath, opts, callback) {
     });
 }
 
-function cleanup (id) {
+function cleanup(id) {
     logger(id, 'info', 'Cleaning up...');
     delete ramdb[id];
     fs.removeSync(path.resolve(config.file_storage + '/' + id));
 }
 
-function loadLang () {
-    for (let k in config.available_lang){
+function loadLang() {
+    for (let k in config.available_lang) {
         if (config.available_lang.hasOwnProperty(k)) {
             messages[k] = JSON.parse(fs.readFileSync(path.resolve('./lang/' + k + '.json'), 'utf8'));
             logger('INTERNAL', 'info', 'Loaded language strings: ' + k);
@@ -459,6 +472,6 @@ function loadLang () {
     }
 }
 
-function logger (chatId, type, msg) {
+function logger(chatId, type, msg) {
     console.log('[' + chatId + ']', '[' + type.toUpperCase() + ']', msg);
 }
