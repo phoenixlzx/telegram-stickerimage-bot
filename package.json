@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/phoenixlzx/telegram-stickerimage-bot#readme",
   "dependencies": {
-    "async": "^2.0.1",
+    "async": "^3.2.2",
     "fs-extra": "^0.30.0",
     "imagemagick": "^0.1.3",
     "jszip": "^3.1.1",
