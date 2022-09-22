@@ -1,13 +1,13 @@
 module.exports = {
     // telegram bot token and username, get from @BotFather
-    token: '1234567890:YOURTOKENHERE',
-    username: 'MyAwesomeStickerBot',
+    token: '5671151663:AAGmuLGCFvGEsguE8dLzYxnDkGOIdEisU6k',
+    username: 'VOID4STICKERSBOT',
 
     // imagemagick convert path, defaults to 'convert'
     im_convert_path: 'convert',
 
     // max images allowed in one pack
-    maximages: 50,
+    maximages: 180,
     // file storage path
     file_storage: './storage',
 
