@@ -442,7 +442,7 @@ async function convertTgsToGif(src, dest, width) {
 
     // Use lottie2gif to convert JSON to GIF
     await new Promise((resolve, reject) => {
-        const command = `${config.lottie2gif} "${jsonPath}" ${width}x${width} ffffff`;
+        const command = `${config.lottie2gif} -o "${dest}" "${jsonPath}"`;
         exec(command, (error, stdout, stderr) => {
             if (error) {
                 console.error(`Error converting JSON to GIF: ${stderr}`);
