@@ -420,16 +420,41 @@ async function convertWebmToGif(src, dest, width) {
 }
 
 async function convertTgsToGif(src, dest, width) {
-    return new Promise((resolve, reject) => {
-        const command = `rlottie-convert -i "${src}" -o "${dest}" -w ${width}`;
-        require('child_process').exec(command, (error) => {
+    const fs = require('fs-extra');
+    const path = require('path');
+    const { exec } = require('child_process');
+
+    // Define paths
+    const jsonPath = src + '.json';
+
+    // Decompress the .tgs file to JSON
+    await new Promise((resolve, reject) => {
+        const command = `gzip -dc "${src}" > "${jsonPath}"`;
+        exec(command, (error, stdout, stderr) => {
             if (error) {
+                console.error(`Error decompressing .tgs file: ${stderr}`);
                 reject(error);
             } else {
                 resolve();
             }
         });
     });
+
+    // Use lottie2gif to convert JSON to GIF
+    await new Promise((resolve, reject) => {
+        const command = `${config.lottie2gif} "${jsonPath}" ${width}x${width} ffffff`;
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Error converting JSON to GIF: ${stderr}`);
+                reject(error);
+            } else {
+                resolve();
+            }
+        });
+    });
+
+    // Clean up the temporary JSON file
+    fs.unlinkSync(jsonPath);
 }
 
 async function convertImage(src, dest, width, format) {
