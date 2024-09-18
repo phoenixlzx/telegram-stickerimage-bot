@@ -24,7 +24,9 @@
     "invalid_set": "獲取貼圖包 %setName% 訊息時出錯",
     "convert_error": "轉換格式時出錯.",
     "download_error": "下載圖片時出錯.",
-    "direct_task_started": "處理貼紙中... \n\n  Tip: 嘗試 /newpack 以:\n    - 匯出多張貼紙\n    - 匯出整個貼紙包"
+    "direct_task_started": "處理貼紙中... \n\n  Tip: 嘗試 /newpack 以:\n    - 導出多張貼紙\n    - 導出整個貼紙包",
+    "unsupported_sticker_source": "%source% 不是受支持的貼紙來源。支持的貼圖來源請參考 /sources 命令。",
+    "supported_sticker_sources": "以下鏈接 URL 是機器人支持的貼紙來源：\n\n%sources%\n\n在這些鏈接之一中附加貼紙集標識符，以便機器人可以識別它。"
   },
   "app": {
     "storagepathnotexist": "儲存路徑不存在，建立中……"

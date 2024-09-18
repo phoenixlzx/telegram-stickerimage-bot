@@ -3,21 +3,31 @@ module.exports = {
     token: '1234567890:YOURTOKENHERE',
     username: 'MyAwesomeStickerBot',
 
-    // imagemagick convert path, defaults to 'convert'
-    im_convert_path: 'convert',
+    // binary paths
+    lottie2gif: 'lottie2gif'
 
     // max images allowed in one pack
     maximages: 50,
+
+    // max upload size by telegram
+    maxfilebytes: 49 * 1024 * 1024,
+
     // file storage path
     file_storage: './storage',
 
+    // recognized sticker sources
+    sticker_sources: [
+        'https://t.me/addstickers/',
+        'https://telegram.me/addstickers/'
+    ],
     // use language
     default_lang: 'en',
     available_lang: {
         'en': ['English', 'English'],
         'de': ['German', 'Deutsch'],
         'zh-hans': ['简体中文', '中国'],
-        'zh-hant': ['正體中文', '中國']
+        'zh-hant': ['正體中文', '中國'],
+        'pt': ['Português (Portugal)']
     }
 };
 
