@@ -314,6 +314,7 @@ async function directHandler(ctx) {
         cleanup(chatId);
     } catch (err) {
         cleanup(chatId);
+        logger(chatId, 'error', 'Error direct image task:' + err);
         await ctx.reply(
             messages[langSession[chatId]].msg.error,
             { reply_to_message_id: messageId }
