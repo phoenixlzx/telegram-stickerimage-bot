@@ -129,19 +129,84 @@ async function finishHandler(ctx, format) {
         await convertHandler(ctx, fpath, format);
 
         await ctx.reply(messages[langSession[chatId]].msg.packaging);
-        let zipContent = await zipHandler(ctx);
 
-        await ctx.reply(messages[langSession[chatId]].msg.sending);
-        logger(chatId, 'info', 'Sending zip file...');
-        await ctx.telegram.sendDocument(ctx.from.id, {
-            source: zipContent,
-            filename: 'stickers_' + chatId + '.zip'
-        });
+        // Batch images and send ZIP files
+        await batchAndSendZipFiles(ctx, fpath);
+
         cleanup(chatId);
         logger(chatId, 'info', 'Task finished.');
     } catch (err) {
         errMsgHandler(ctx, err);
     }
+}
+
+async function batchAndSendZipFiles(ctx, fpath) {
+    let chatId = ctx.message.chat.id;
+    let files = ramdb[chatId].destimg;
+    let batches = [];
+    let currentBatch = [];
+    let currentBatchSize = 0;
+
+    // Batch images based on file sizes
+    for (let file of files) {
+        let fileSize = fs.statSync(file).size;
+        if (currentBatchSize + fileSize > config.maxfilebytes && currentBatch.length > 0) {
+            batches.push(currentBatch);
+            currentBatch = [];
+            currentBatchSize = 0;
+        }
+        currentBatch.push(file);
+        currentBatchSize += fileSize;
+    }
+
+    // Add the last batch if it has any files
+    if (currentBatch.length > 0) {
+        batches.push(currentBatch);
+    }
+
+    logger(chatId, 'info', `Total batches to send: ${batches.length}`);
+
+    // Send each batch as a ZIP file
+    for (let i = 0; i < batches.length; i++) {
+        let batch = batches[i];
+        let zipFilePath = await createZipForBatch(ctx, fpath, batch, i + 1);
+
+        await ctx.telegram.sendDocument(ctx.from.id, {
+            source: fs.createReadStream(zipFilePath),
+            filename: `stickers_${chatId}_${i + 1}.zip`
+        });
+
+        // Clean up the sent files and ZIP
+        fs.unlinkSync(zipFilePath);
+        for (let file of batch) {
+            fs.unlinkSync(file);
+        }
+
+        logger(chatId, 'info', `Sent batch ${i + 1} and cleaned up.`);
+    }
+}
+
+async function createZipForBatch(ctx, fpath, batchFiles, batchNumber) {
+    let chatId = ctx.message.chat.id;
+    let zip = new JSZip();
+
+    for (let file of batchFiles) {
+        let fname = path.basename(file);
+        logger(chatId, 'info', `Adding file ${fname} to batch ${batchNumber}`);
+        zip.file(fname, fs.readFileSync(file));
+    }
+
+    let zipContent = await zip.generateAsync({
+        compression: 'DEFLATE',
+        type: 'nodebuffer',
+        comment: 'Created by telegram-stickerimage-bot',
+        platform: process.platform
+    });
+
+    let zipFilePath = path.join(fpath.packpath, `stickers_${chatId}_${batchNumber}.zip`);
+    fs.writeFileSync(zipFilePath, zipContent);
+
+    return zipFilePath;
 }
 
 function cancellationHandler(ctx) {

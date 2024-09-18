@@ -8,6 +8,10 @@ module.exports = {
 
     // max images allowed in one pack
     maximages: 50,
+
+    // max upload size by telegram
+    maxfilebytes: 49 * 1024 * 1024
+
     // file storage path
     file_storage: './storage',
 
