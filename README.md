@@ -9,6 +9,7 @@ Send individual stickers or sticker links (something like `https://t.me/addstick
 
 * Node.js v8.0.0^
 * ImageMagick with webp support (Check with `identify -list format | grep -i 'webp'` on *nix systems)
+* [lottieconv](https://crates.io/crates/lottieconv)
 
 ### Usage
 
