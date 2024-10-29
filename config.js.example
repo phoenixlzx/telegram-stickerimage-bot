@@ -27,7 +27,9 @@ module.exports = {
         'de': ['German', 'Deutsch'],
         'zh-hans': ['简体中文', '中国'],
         'zh-hant': ['正體中文', '中國'],
-        'pt': ['Português (Portugal)']
+        'pt': ['Português (Portugal)'],
+        'ru': ['Russian', 'Русский'],
+        'ua': ['Ukrainian', 'Українська']
     }
 };
 
