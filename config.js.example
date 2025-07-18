@@ -4,7 +4,7 @@ module.exports = {
     username: 'MyAwesomeStickerBot',
 
     // binary paths
-    lottie2gif: 'lottie2gif'
+    lottie2gif: 'lottie2gif',
 
     // max images allowed in one pack
     maximages: 50,
