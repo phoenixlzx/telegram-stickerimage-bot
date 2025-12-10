@@ -472,15 +472,32 @@ async function convert(ctx, src, fpath, format) {
 
 async function convertWebmToGif(src, dest, width) {
     return new Promise((resolve, reject) => {
+        // Temp palette dest
+        const palette = path.join(
+            path.dirname(dest),
+            path.basename(dest, path.extname(dest)) + '-palette.png'
+        );
+        // Generate palette
         ffmpeg(src)
-            .outputOptions([
-                '-vf', `scale=${width}:-1:flags=lanczos`,
-                '-y'
-            ])
-            .toFormat('gif')
-            .save(dest)
-            .on('end', resolve)
-            .on('error', reject);
+            .videoFilters(`scale=${width}:-1:flags=lanczos,palettegen=max_colors=256`)
+            .outputOptions(['-update', '1'])
+            .save(palette)
+            .on('error', reject)
+            .on('end', () => {
+                // Use palette to gen the gif
+                ffmpeg(src)
+                    .input(palette)
+                    .complexFilter([
+                        `[0:v]scale=${width}:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=5`
+                    ])
+                    .save(dest)
+                    .on('error', err => {
+                        fs.unlink(palette, () => reject(err));
+                    })
+                    .on('end', () => {
+                        fs.unlink(palette, () => resolve());
+                    });
+            });
     });
 }
 
